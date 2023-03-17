@@ -3,7 +3,11 @@ We have developed a website for a smart faucet that displays information detecte
 
 Branch:
 main: 產品上線
+
 dev: 每個branch，先在dev彙整，沒問題再丟到main
+
 HankLin: 紹元
+
 Flaky: 珈誼
+
 Woody: 樹盛
