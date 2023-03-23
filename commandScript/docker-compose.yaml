@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: unless-stopped 
+    ports:
+      - "27017:27017"
+    volumes:
+      - /home/hanklin0804/SmartFaucetWeb/database/mongodb_data:/data/db
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    restart: unless-stopped 
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: faucetweb
+    volumes:
+      - /home/hanklin0804/SmartFaucetWeb/database/mysql_data:/var/lib/mysql
+
+# volumes:
+#   mongodb_data:
+#   mysql_data:
