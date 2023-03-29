@@ -1,0 +1,17 @@
+{% extends "base.html"%}
+{% block title%} 
+page_login
+{% endblock title%}
+
+{% block content %}
+<form action="/" method="post">
+    <label>帳號</label>
+    <input type="text" name="account"/>
+    <label>密碼</label>
+    <input type="text" name="password"/>
+    <label>驗證</label>
+    <input type="text" name="captcha"/>
+    <input type="submit" name="login" value="登入"/>
+</form>
+
+{% endblock content %}

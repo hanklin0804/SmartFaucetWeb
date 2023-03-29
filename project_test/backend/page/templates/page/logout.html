@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登出</title>
+</head>
+
+<body>
+    <h1>登出</h1>
+    <button id="logoutBtn">登出</button>
+
+    <script>
+        document.getElementById('logoutBtn').addEventListener('click', async function () {
+            // 清除本地儲存的token
+            <!-- localStorage.removeItem('token'); -->
+
+            // 登出並導向指定的URL
+            const response = await fetch('http://192.168.91.130:8787/api/accounts/logout/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                // 添加其他必要的內容，例如身份驗證信息
+            });
+
+            if (response.status === 200) {
+                alert('您已成功登出！');
+                // 在此添加登出後的操作，例如跳轉到其他頁面
+            } else {
+                alert('登出失敗，請稍後再試！');
+            }
+        });
+    </script>
+</body>
+
+</html>
