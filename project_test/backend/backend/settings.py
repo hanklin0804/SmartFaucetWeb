@@ -59,8 +59,8 @@ INSTALLED_APPS = [
     'page',
     'account',
     'rest_framework',
-    'rest_framework_simplejwt',
-    'captcha',
+    # 'rest_framework_simplejwt',
+    # 'captcha',
     # 'rest_framework_mangoengine',
 ]
 
