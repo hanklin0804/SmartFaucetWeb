@@ -11,11 +11,15 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+import os 
+import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+# Insert the two lines below
+APPS_DIR = os.path.join(BASE_DIR, 'backend/api/')
+sys.path.insert(0, APPS_DIR)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -25,8 +29,8 @@ SECRET_KEY = 'django-insecure-1-@g(o=0z7o8p#guccj2@)m+-ew0n968#7!i@psp@4z8cm!5ae
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-AUTH_USR_MODEL = 'accounts.AccountModel'
+ALLOWED_HOSTS = ['*']
+AUTH_USR_MODEL = 'api.accounts.AccountModel'
 
 # Application definition
 
@@ -38,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'accounts',
+    'api.accounts',
 ]
 
 MIDDLEWARE = [
@@ -77,8 +81,15 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'mysql',
+        'USER': 'root',
+        'PASSWORD': '1234', 
+        'HOST': '0.0.0.0',
+        'PORT': 3306,
+        'default-character-set': 'UTF8',
     }
 }
 

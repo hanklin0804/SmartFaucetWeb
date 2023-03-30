@@ -1,8 +1,13 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
+class AccountManager(BaseUserManager):
+    def get_by_natural_key(self, account):
+        user = self.get(account=account)
+        print('Found user:', user)
+        return user
 
-class AccountModel(AbstractBaseUser, PermissionsMixin):
+class AccountModel(AbstractBaseUser):
     account = models.CharField(max_length=30, unique=True)
     email = models.EmailField(max_length=254, unique=True) # , primary_key=True == null=False, unique=True
     name = models.CharField(max_length=255)
@@ -15,8 +20,8 @@ class AccountModel(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'account'
     REQUIRED_FIELDS = ['email', 'name', 'phone'] #, 'company'
 
-    # objects = AccountManager()
+    objects = AccountManager()
     class Meta:
-        db_table = 'accounts_table'
+        db_table = 'users_table'
     def __str__(self):
         return self.email
