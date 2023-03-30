@@ -37,10 +37,12 @@ sudo usermod -aG docker $USER
 sudo reboot
 
 # -------安裝docker compose--------
-sudo curl -L "https://github.com/docker/compose/releases/download/v2.17.0/docker-compose-linux-x86_64" -o /usr/bin/docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.17.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose
 sudo chmod +x /usr/bin/docker-compose
 docker-compose --version
 
+
+#-----------看情況安裝--------------
 sudo apt-get update
 sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -54,7 +56,7 @@ sudo apt update
 sudo apt install python3-pip -y
 pip3 --version
 python3 -m pip install pipenv
-export PATH="$PATH:/home/Hanklin/.local/bin"
+export PATH="$PATH:/home/$USER/.local/bin"
 
 
 
