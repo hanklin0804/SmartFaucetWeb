@@ -1,3 +1,19 @@
+#----------建立腳色-------------------
+sudo adduser --force-badname Flaky
+sudo adduser --force-badname Woody
+sudo adduser --force-badname Hanklin
+sudo usermod -aG sudo Flaky
+sudo usermod -aG sudo Woody
+sudo usermod -aG sudo Hanklin
+
+#-----------個別建立金要---------------
+mkdir ~/.ssh
+touch ~/.ssh/authorized_keys
+sudo vim ~/.ssh/authorized_keys
+
+
+
+
 sudo apt update -y
 sudo apt upgrade -y
 
@@ -31,6 +47,15 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 
 # ----------.env權限-------------
 chmod 600 .env
+
+
+#-----------安裝Pip pipenv----------
+sudo apt update
+sudo apt install python3-pip -y
+pip3 --version
+python3 -m pip install pipenv
+export PATH="$PATH:/home/Hanklin/.local/bin"
+
 
 
 
