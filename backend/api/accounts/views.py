@@ -74,3 +74,20 @@ def logout_view(request):
 
 
 
+@api_view(['POST'])
+def add_default_users_view(request): 
+    for i in range(1, 11):
+        data = {"account": f"user{i}", "email": f"user{i}@gmail.com", "name": f"user{i}", "password": "1234", "phone": "1234"}
+        serializer = AccountSerializer(data=data)
+        if not serializer.is_valid():
+            json_response = {'status': 'error', 'message': serializer.errors}
+            return Response(json_response, status=status.HTTP_404_NOT_FOUND)
+        user = serializer.save()
+        user.set_password(user.password)
+        user.save()
+    
+    json_response = {
+        'status': 'success',
+        'message': 'default user1-10 created successfully (password=1234)',
+    }
+    return Response(json_response, status=status.HTTP_200_OK)
