@@ -1,0 +1,12 @@
+您好 {{ account }}，
+
+以下是您的驗證碼：
+
+{{ verification_code }}
+
+
+Hello {{ account }}, 
+
+Here is your verification code:
+
+{{ verification_code }}

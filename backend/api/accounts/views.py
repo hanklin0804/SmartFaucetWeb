@@ -22,6 +22,30 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 # authentication_class = [JWTAuthentication]
 
 
+from django.core.mail import send_mail, EmailMessage
+from django.template.loader import render_to_string
+from django.conf import settings
+import random
+from django.core.cache import cache
+
+# jwt
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
+
+def generate_verification_code(length=6):
+    return ''.join([str(random.randint(0,9)) for _ in range(length)])
+
+def store_verification_code(email, code, timeout=600):
+    cache_key = f'verification_code_{email}'
+    cache.set(cache_key, code, timeout)
+
+def get_stored_verification_code(email):
+    cache_key = f'verification_code_{email}'
+    return cache.get(cache_key)
+
+def delete_stored_verification_code(email):
+    cache_key = f'verification_code_{email}'
+    cache.delete(cache_key)
+
 @api_view(['POST'])
 def signup_view(request): 
     serializer = AccountSerializer(data=request.data)
@@ -30,9 +54,24 @@ def signup_view(request):
         return Response(json_response, status=status.HTTP_404_NOT_FOUND)
     
     # = serializer def create(self, validated_data)
-    user = serializer.save()
-    user.set_password(user.password)
-    user.save()
+    # user = serializer.save()
+    # user.set_password(user.password)
+    # user.save()
+
+    # send email
+    verification_code = generate_verification_code()
+    email = serializer.validated_data['email']
+
+    subject = 'T.A.P. verification code'
+    
+    message = render_to_string('email_template.txt', 
+                               {'account': serializer.validated_data['account'], 'verification_code': verification_code})
+    from_email = 's11a02d@gmail.com'
+    recipient_list = [email]
+    send_mail(subject, message, from_email, recipient_list)
+    # store 
+    store_verification_code(email, verification_code)
+
 
     json_response = {
         'status': 'success',
@@ -40,6 +79,23 @@ def signup_view(request):
     }
     return Response(json_response, status=status.HTTP_200_OK)
 
+@api_view(['POST'])
+def verify_verification_email(request):
+    email = request.data.get('email')
+    user_provided_code = request.data.get('verification_code')
+    stored_verification_code = get_stored_verification_code(email)
+
+    if user_provided_code == stored_verification_code:
+        user = AccountModel.objects.get(email=email)
+        user.is_verified = True
+        user.save()
+
+        delete_stored_verification_code(email)
+        json_response = {'status': 'success', 'message': 'verification code successfully'}
+        return Response(json_response, status=status.HTTP_200_OK)
+    else:
+        json_response = {'status': 'error', 'message': 'verification code error'}
+        return Response(json_response, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
@@ -52,7 +108,12 @@ def login_view(request):
         return Response(json_response, status=status.HTTP_404_NOT_FOUND)
     # login
     login(request, user)
-
+    
+    # jwt: generate 
+    jwt_token = {
+        'access_token': str(AccessToken.for_user(user)),
+        'refresh_token': str(RefreshToken.for_user(user)),
+    }  
     json_response = {
         'status': 'success',
         'message': 'login successfully',
@@ -60,7 +121,7 @@ def login_view(request):
             'account': user.account,
             'is_superuser': user.is_superuser,
         },
-        # 'jwt_token': jwt_token
+        'jwt_token': jwt_token,
     }
     return Response(json_response, status=status.HTTP_200_OK)
 
@@ -68,11 +129,27 @@ def login_view(request):
 
 @api_view(['POST'])
 def logout_view(request):
+    # jwt: delete
+    refresh_token = request.data.get('refresh_token')
+    token = RefreshToken(refresh_token)
+    token.blacklist()
+
     logout(request) # clean auth session data
+
     json_response = {'status': 'success'}
     return Response(json_response, status=status.HTTP_200_OK)
 
-
+# from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+@api_view(['GET'])
+def protected_data_view(request):
+    # permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    json_response = {
+        'status': 'success',
+        'message': 'can get data',
+    }
+    return Response(json_response, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def add_default_users_view(request): 
@@ -91,3 +168,8 @@ def add_default_users_view(request):
         'message': 'default user1-10 created successfully (password=1234)',
     }
     return Response(json_response, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def resend_email(request):
+    return Response()

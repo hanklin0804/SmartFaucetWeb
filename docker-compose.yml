@@ -26,3 +26,19 @@ services:
       db:
         condition: service_healthy
   
+  redis:
+    image: redis:alpine
+    command: redis-server --requirepass mitlabredis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./reids_data:/data
+
+  # phpmyadmin:
+  #   image: phpmyadmin/phpmyadmin 
+  #   environment:
+  #     PMA_HOST: db
+  #   ports:
+  #     - "7878:80"
+  #   depends_on:
+  #     - db  
