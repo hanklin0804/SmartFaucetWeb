@@ -11,6 +11,7 @@ django-recaptcha = "*"
 requests = "*"
 djangorestframework-simplejwt = "*"
 django-redis = "*"
+python-dotenv = "*"
 
 [dev-packages]
 

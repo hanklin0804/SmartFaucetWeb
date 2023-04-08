@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os 
 import sys
+from dotenv import load_dotenv
+load_dotenv('../../.env')
+
+SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -50,7 +54,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 's11a02d@gmail.com'
-EMAIL_HOST_PASSWORD = 'lllksvhcizhxccls'
+EMAIL_HOST_PASSWORD = SMTP_PASSWORD
 
 # Application definition
 
