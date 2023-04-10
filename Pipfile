@@ -5,13 +5,14 @@ name = "pypi"
 
 [packages]
 django = "*"
-djangorestframework = "*"
-mysqlclient = "*"
-django-recaptcha = "*"
 requests = "*"
-djangorestframework-simplejwt = "*"
+mysqlclient = "*"
 django-redis = "*"
+django-recaptcha = "*"
+djangorestframework = "*"
+djangorestframework-simplejwt = "*"
 python-dotenv = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 

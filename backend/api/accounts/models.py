@@ -14,7 +14,7 @@ class AccountModel(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=15)
     company = models.CharField(max_length=255, null=True) # XXX null=True
     information = models.TextField(blank=True, null=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'account'

@@ -13,9 +13,10 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 from pathlib import Path
 import os 
 import sys
+
+from datetime import timedelta # jwt
 from dotenv import load_dotenv
 load_dotenv('.env')
-print('#########',os.getenv('SECRET_KEY'))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,18 +36,28 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'accounts.AccountModel'
 
+#-------------------------------------------------------------------------------#
+# rest framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication', 
+
     ],
 }
+#-------------------------------------------------------------------------------#
 # jwt
-from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 } 
 
+# JWT_AUTH = {
+#     'JWT_ALGORITHM': 'HS256',
+#     'JWT_EXPIRATION_DELTA': timedelta(seconds=300),
+#     'JWT_ALLOW_REFRESH': True,
+#     'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=7),
+# }
+#-------------------------------------------------------------------------------#
 # email SMTP
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -54,9 +65,8 @@ EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-
+#-------------------------------------------------------------------------------#
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -68,8 +78,10 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_redis',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
+    'corsheaders',
 ]
-
+#-------------------------------------------------------------------------------#
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -78,7 +90,20 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware', #
 ]
+
+#-------------------------------------------------------------------------------#
+CORS_ORIGINS_WHITELIST = [
+    'frontend:3000',
+]
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+]
+# CORS_ORIGIN_ALLOW_ALL = True
+#-------------------------------------------------------------------------------#
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -100,10 +125,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
+#-------------------------------------------------------------------------------#
+# mysql
 DATABASES = {
     'default': {
         # 'ENGINE': 'django.db.backends.sqlite3',
@@ -117,19 +140,21 @@ DATABASES = {
         'default-character-set': 'UTF8',
     }
 }
-
+#-------------------------------------------------------------------------------#
+# redis
 CACHES = {
 
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'LOCATION': 'redis://:mitlabredis@redis:6379/1', # 127.0.0.1XXX
         'OPTIONS':{
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'PASSWORD': 'mitlabredis',
+            # 'PASSWORD': 'mitlabredis',
         },
         'TIMEOUT': 300, # sec
     }
 }
+#-------------------------------------------------------------------------------#
 
 
 # Password validation

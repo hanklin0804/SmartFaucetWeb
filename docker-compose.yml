@@ -29,7 +29,7 @@ services:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
 
-      EMAIL_PORT5: ${EMAIL_PORT5}
+      EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_HOST_USER: ${EMAIL_HOST_USER}
       EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
 
@@ -41,7 +41,7 @@ services:
       db:
         condition: service_healthy
   
-  redis:
+  redis: # hostname
     image: redis:alpine
     command: redis-server --requirepass mitlabredis
     ports:
@@ -49,11 +49,22 @@ services:
     volumes:
       - ./reids_data:/data
 
-  # phpmyadmin:
-  #   image: phpmyadmin/phpmyadmin 
-  #   environment:
-  #     PMA_HOST: db
-  #   ports:
-  #     - "7878:80"
-  #   depends_on:
-  #     - db  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin 
+    environment:
+      PMA_HOST: db
+    ports:
+      - "7878:80"
+    depends_on:
+      - db  
+
+  frontend:
+    build: ./my-app
+    image:
+    environment:
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+    volumes:
+      - ./my-app:
