@@ -14,9 +14,8 @@ from pathlib import Path
 import os 
 import sys
 from dotenv import load_dotenv
-load_dotenv('../../.env')
-
-SMTP_PASSWORD = os.getenv('SMTP_PASSWORD')
+load_dotenv('.env')
+print('#########',os.getenv('SECRET_KEY'))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +27,7 @@ sys.path.insert(0, APPS_DIR)
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-yc3=egbn!1+@tf-gflu8p-k2&%9=)p6jaqao*7&+n%@-m)z56z'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -51,10 +50,10 @@ SIMPLE_JWT = {
 # email SMTP
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
+EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 's11a02d@gmail.com'
-EMAIL_HOST_PASSWORD = SMTP_PASSWORD
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 # Application definition
 
@@ -110,10 +109,10 @@ DATABASES = {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': BASE_DIR / 'db.sqlite3',
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mysql',
+        'NAME': os.getenv('DATABASE_NAME'),
         'USER': 'root',
-        'PASSWORD': '1234', 
-        'HOST': 'db',
+        'PASSWORD': os.getenv('DATABASE_ROOT_PASSWORD'), 
+        'HOST': os.getenv('DATABASE_HOST'),
         'PORT': 3306,
         'default-character-set': 'UTF8',
     }
