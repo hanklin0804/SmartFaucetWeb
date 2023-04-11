@@ -20,9 +20,10 @@ from api.accounts.serializers import AccountSerializer
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 # authentication_class = [JWTAuthentication]
-
+from django.views.decorators.csrf import csrf_exempt
 
 @api_view(['POST'])
+@csrf_exempt
 def signup_view(request): 
     serializer = AccountSerializer(data=request.data)
     if not serializer.is_valid():
@@ -43,6 +44,7 @@ def signup_view(request):
 
 
 @api_view(['POST'])
+@csrf_exempt
 def login_view(request):
     account = request.data.get('account') # POST[''] # POST.get
     password = request.data.get('password')
@@ -67,6 +69,7 @@ def login_view(request):
 
 
 @api_view(['POST'])
+@csrf_exempt
 def logout_view(request):
     logout(request) # clean auth session data
     json_response = {'status': 'success'}
@@ -75,6 +78,7 @@ def logout_view(request):
 
 
 @api_view(['POST'])
+@csrf_exempt
 def add_default_users_view(request): 
     for i in range(1, 11):
         data = {"account": f"user{i}", "email": f"user{i}@gmail.com", "name": f"user{i}", "password": "1234", "phone": "1234"}
