@@ -49,6 +49,8 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ROTATE_REFRESH_TOKENS': False,
 } 
 
 # JWT_AUTH = {
@@ -142,11 +144,12 @@ DATABASES = {
 }
 #-------------------------------------------------------------------------------#
 # redis
+REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
 CACHES = {
 
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://:mitlabredis@redis:6379/1', # 127.0.0.1XXX
+        'LOCATION': f'redis://:{REDIS_PASSWORD}@redis:6379/1', # 127.0.0.1XXX
         'OPTIONS':{
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             # 'PASSWORD': 'mitlabredis',

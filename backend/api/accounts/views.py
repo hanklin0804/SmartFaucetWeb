@@ -30,6 +30,9 @@ from django.core.cache import cache
 
 # jwt
 from rest_framework_simplejwt.tokens import RefreshToken # AccessToken
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.decorators import authentication_classes, permission_classes
 
 def generate_verification_code(length=6):
     return ''.join([str(random.randint(0,9)) for _ in range(length)])
@@ -157,17 +160,13 @@ def login_view(request):
     return Response(json_response, status=status.HTTP_200_OK)
 
 
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.decorators import authentication_classes, permission_classes
 
+#-------------------------------------------------------------------------------#
 
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
-    
-
     # jwt: delete
     refresh_token = request.data.get('refresh_token')
     token = RefreshToken(refresh_token)
@@ -177,7 +176,7 @@ def logout_view(request):
 
     json_response = {'status': 'success'}
     return Response(json_response, status=status.HTTP_200_OK)
-
+#-------------------------------------------------------------------------------#
 
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
@@ -189,7 +188,7 @@ def jwt_view(request):
         'message': 'can get data',
     }
     return Response(json_response, status=status.HTTP_200_OK)
-
+#-------------------------------------------------------------------------------#
 @api_view(['POST'])
 def add_default_users_view(request): 
     for i in range(1, 11):
@@ -208,3 +207,4 @@ def add_default_users_view(request):
     }
     return Response(json_response, status=status.HTTP_200_OK)
 
+#-------------------------------------------------------------------------------#

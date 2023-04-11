@@ -3,6 +3,7 @@ async-timeout==4.0.2
 certifi==2022.12.7
 charset-normalizer==3.1.0
 Django==4.2
+django-cors-headers==3.14.0
 django-recaptcha==3.0.0
 django-redis==5.2.0
 djangorestframework==3.14.0
