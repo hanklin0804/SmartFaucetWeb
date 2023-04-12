@@ -1,0 +1,13 @@
+# version: '3.8'
+# services:
+#   Front:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     image: my_react:latest
+#     container_name: react
+#     # tty: true
+#     volumes:
+#       - ./main:/main/
+#     ports:
+#       - "3000:3000"

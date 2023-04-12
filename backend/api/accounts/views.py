@@ -41,15 +41,17 @@ def signup_view(request):
     }
     return Response(json_response, status=status.HTTP_200_OK)
 
-
+import logging
+logger = logging.getLogger(__name__)
 
 @api_view(['POST'])
 @csrf_exempt
 def login_view(request):
     account = request.data.get('account') # POST[''] # POST.get
     password = request.data.get('password')
-    user = authenticate(request, account=account, password=password)
+    user = authenticate(account=account, password=password) #request, 
     if user is None:
+        logger.error('Invalid username or password')
         json_response = {'status': 'error', 'message': 'Invalid username or password'}
         return Response(json_response, status=status.HTTP_404_NOT_FOUND)
     # login

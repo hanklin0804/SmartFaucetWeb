@@ -25,4 +25,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
-  
+
+  Front:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: my_react:latest
+    container_name: react
+    # tty: true
+    volumes:
+      - ./frontend/main:/main/
+    ports:
+      - "3000:3000"
+    depends_on:
+      - web
