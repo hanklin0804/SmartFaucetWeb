@@ -62,4 +62,12 @@ services:
     depends_on:
       - db  
 
- 
+  # frontend:
+  #   build: ./my-app
+  #   ports:
+  #     - '3000:3000'
+  #   depends_on:
+  #     - backend
+  #   volumes:
+  #     - ./my-app:/app
+  
