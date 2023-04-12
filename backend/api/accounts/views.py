@@ -33,6 +33,7 @@ def signup_view(request):
     # = serializer def create(self, validated_data)
     user = serializer.save()
     user.set_password(user.password)
+    user.is_active = 1
     user.save()
 
     json_response = {
