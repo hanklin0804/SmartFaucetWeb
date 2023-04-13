@@ -92,13 +92,13 @@ def signup_view(request):
 @csrf_exempt
 def resend_email_verification_view(request):
     account = request.data.get('account')
-    email = request.data.get('email')
-    
+    user = AccountModel.objects.get(account=account)
+    email = user.email
     send_email_verification_code(account, email)
 
     json_response = {
         'status': 'success',
-        'message': 'resend email verification successfully',
+        'message': 'resend email verification successfully'
     }
     return Response(json_response, status=status.HTTP_200_OK)
 
@@ -106,7 +106,10 @@ def resend_email_verification_view(request):
 @api_view(['POST'])
 @csrf_exempt
 def verify_email_verification_view(request):
-    email = request.data.get('email')
+    account = request.data.get('account')
+    user = AccountModel.objects.get(account=account)
+    email = user.email
+
     user_provided_verification_code = request.data.get('verification_code')
 
     stored_verification_code = get_stored_verification_code(email)
