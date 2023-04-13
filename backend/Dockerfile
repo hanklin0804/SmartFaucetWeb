@@ -10,7 +10,7 @@ RUN apt-get -qq update \
     && apt-get install -y gcc build-essential default-libmysqlclient-dev \
     && pip install --no-cache-dir -r requirements.txt
 
-COPY ./backend /backend
+COPY . /backend
 ENTRYPOINT ["/backend/entrypoint.sh"]
 
 

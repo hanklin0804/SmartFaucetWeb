@@ -1,13 +1,13 @@
 version: "3.8"
 services:
-  db:
+  mysql:
     image: mysql:8.0.32
+    container_name: mysql
     environment:
       MYSQL_DATABAS: ${DATABASE_NAME}
       MYSQL_USER: ${DATABASE_USER}
       MYSQL_PASSWORD: ${DATABASE_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
-
     volumes:
       - ./mysql_data:/var/lib/mysql
     healthcheck:
@@ -16,10 +16,32 @@ services:
       timeout: 5s
       retries: 3
 
-  web:
-    build: .
-    entrypoint: ./entrypoint.sh
+  frontend:
+    build: ./frontend
+    image: frontend:latest
+    container_name: frontend
+    # tty: true
+    volumes:
+      - ./frontend/main:/main/
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+  
+  # frontend:
+  #   build: ./my-app
+  #   ports:
+  #     - '3000:3000'
+  #   depends_on:
+  #     - backend
+  #   volumes:
+  #     - ./my-app:/app
+
+  backend:
+    build: ./backend
+    # entrypoint: ./backend/entrypoint.sh
     image: backend:1.1.0
+    container_name: backend
     restart: unless-stopped 
     environment: 
       SECRET_KEY: ${SECRET_KEY}
@@ -34,19 +56,17 @@ services:
       EMAIL_PORT: ${EMAIL_PORT}
       EMAIL_HOST_USER: ${EMAIL_HOST_USER}
       EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
-
-
-
     ports:
       - "8787:8787"
     volumes:
       - ./backend:/backend
     depends_on:
-      db:
+      mysql:
         condition: service_healthy
   
   redis: # hostname
     image: redis:alpine
+    container_name: redis
     command: redis-server --requirepass ${REDIS_PASSWORD}
     ports:
       - "6379:6379"
@@ -55,19 +75,13 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin 
+    container_name: phpmyadmin
     environment:
-      PMA_HOST: db
+      PMA_HOST: mysql
     ports:
       - "7878:80"
     depends_on:
-      - db  
+      - mysql  
 
-  # frontend:
-  #   build: ./my-app
-  #   ports:
-  #     - '3000:3000'
-  #   depends_on:
-  #     - backend
-  #   volumes:
-  #     - ./my-app:/app
-  
+
+

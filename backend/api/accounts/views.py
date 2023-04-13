@@ -34,12 +34,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import authentication_classes, permission_classes
 
-def generate_verification_code(length=6):
-    return ''.join([str(random.randint(0,9)) for _ in range(length)])
+# csrf
+from django.views.decorators.csrf import csrf_exempt
+# def generate_verification_code(length=6):
+#     return ''.join([str(random.randint(0,9)) for _ in range(length)])
 
-def store_verification_code(email, code): # timeout=300
-    cache_key = f'verification_code_{email}'
-    cache.set(cache_key, code) # timeout
+# def store_verification_code(email, code): # timeout=300
+#     cache_key = f'verification_code_{email}'
+#     cache.set(cache_key, code) # timeout
 
 def get_stored_verification_code(email):
     cache_key = f'verification_code_{email}'
@@ -49,7 +51,23 @@ def delete_stored_verification_code(email):
     cache_key = f'verification_code_{email}'
     cache.delete(cache_key)
 
+def send_email_verification_code(account, email):
+    # generate
+    verification_code = ''.join([str(random.randint(0,9)) for _ in range(6)])
+    # send
+    subject =  'T.A.P. verification code'
+    message = render_to_string('email_template.txt', {'account': account, 'verification_code': verification_code})
+    from_email = 's11a02d@gmail.com'
+    recipient_list = [email]
+    send_mail(subject, message, from_email, recipient_list)
+    # store
+    cache_key = f'verification_code_{email}'
+    cache.set(cache_key, verification_code)
+
+
+
 @api_view(['POST'])
+@csrf_exempt
 def signup_view(request): 
     serializer = AccountSerializer(data=request.data)
     if not serializer.is_valid():
@@ -59,66 +77,41 @@ def signup_view(request):
     # = serializer def create(self, validated_data)
     user = serializer.save()
     user.set_password(user.password)
+    user.is_active = False
     user.save()
 
-    # send email
-    verification_code = generate_verification_code()
-    email = serializer.validated_data['email']
-
-    subject = 'T.A.P. verification code'
-    
-    message = render_to_string('email_template.txt', 
-                               {'account': serializer.validated_data['account'], 'verification_code': verification_code})
-    from_email = 's11a02d@gmail.com'
-    recipient_list = [email]
-    send_mail(subject, message, from_email, recipient_list)
-    # store 
-    store_verification_code(email, verification_code)
-
+    send_email_verification_code(user.account, user.email)
 
     json_response = {
         'status': 'success',
-        'message': 'signup successfully',
+        'message': 'signup & send email verification  successfully',
     }
     return Response(json_response, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
-def resend_email_view(request):
-    # send email
+@csrf_exempt
+def resend_email_verification_view(request):
     account = request.data.get('account')
     email = request.data.get('email')
-    verification_code = generate_verification_code()
     
-
-    subject = 'T.A.P. verification code'
-    
-    message = render_to_string('email_template.txt', 
-                               {'account': account, 'verification_code': verification_code})
-    from_email = 's11a02d@gmail.com'
-    recipient_list = [email]
-    send_mail(subject, message, from_email, recipient_list)
-    # store 
-    store_verification_code(email, verification_code)
-
+    send_email_verification_code(account, email)
 
     json_response = {
         'status': 'success',
-        'message': 'resend email successfully',
+        'message': 'resend email verification successfully',
     }
     return Response(json_response, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
+@csrf_exempt
 def verify_email_verification_view(request):
     email = request.data.get('email')
-    user_provided_code = request.data.get('verification_code')
-    stored_verification_code = get_stored_verification_code(email)
-    data={
-        'user': user_provided_code,
-        'stored': stored_verification_code,
-    }
+    user_provided_verification_code = request.data.get('verification_code')
 
-    if user_provided_code == stored_verification_code:
+    stored_verification_code = get_stored_verification_code(email)
+    
+    if user_provided_verification_code == stored_verification_code:
         user = AccountModel.objects.get(email=email)
         user.is_active = True
         user.save()
@@ -127,11 +120,12 @@ def verify_email_verification_view(request):
         json_response = {'status': 'success', 'message': 'verification code successfully'}
         return Response(json_response, status=status.HTTP_200_OK)
     else:
-        json_response = {'status': 'error', 'message': 'verification code error', 'data': data}
+        json_response = {'status': 'error', 'message': 'verification code error'}
         return Response(json_response, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
+@csrf_exempt
 def login_view(request):
     account = request.data.get('account') # POST[''] # POST.get
     password = request.data.get('password')
@@ -143,39 +137,39 @@ def login_view(request):
     login(request, user)
     
     # jwt: generate 
-    refresh = RefreshToken.for_user(user)
-    jwt_token = {
-        'access_token': str(refresh.access_token),
-        'refresh_token': str(refresh),
-    }  
+    # refresh = RefreshToken.for_user(user)
+    # jwt_token = {
+    #     'access_token': str(refresh.access_token),
+    #     'refresh_token': str(refresh),
+    # }  
     json_response = {
         'status': 'success',
         'message': 'login successfully',
         'user': {
             'account': user.account,
             'is_superuser': user.is_superuser,
-        },
-        'jwt_token': jwt_token
+        }
+        # 'jwt_token': jwt_token
     }
     return Response(json_response, status=status.HTTP_200_OK)
-
-
 
 #-------------------------------------------------------------------------------#
 
 @api_view(['POST'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
+@csrf_exempt
+# @authentication_classes([JWTAuthentication])
+# @permission_classes([IsAuthenticated])
 def logout_view(request):
     # jwt: delete
-    refresh_token = request.data.get('refresh_token')
-    token = RefreshToken(refresh_token)
-    token.blacklist()
+    # refresh_token = request.data.get('refresh_token')
+    # token = RefreshToken(refresh_token)
+    # token.blacklist()
 
     logout(request) # clean auth session data
 
     json_response = {'status': 'success'}
     return Response(json_response, status=status.HTTP_200_OK)
+
 #-------------------------------------------------------------------------------#
 
 @api_view(['POST'])
@@ -188,8 +182,11 @@ def jwt_view(request):
         'message': 'can get data',
     }
     return Response(json_response, status=status.HTTP_200_OK)
+
 #-------------------------------------------------------------------------------#
+
 @api_view(['POST'])
+@csrf_exempt
 def add_default_users_view(request): 
     for i in range(1, 11):
         data = {"account": f"user{i}", "email": f"user{i}@gmail.com", "name": f"user{i}", "password": "1234", "phone": "1234"}
@@ -199,6 +196,7 @@ def add_default_users_view(request):
             return Response(json_response, status=status.HTTP_404_NOT_FOUND)
         user = serializer.save()
         user.set_password(user.password)
+        user.is_active = True
         user.save()
     
     json_response = {
@@ -208,3 +206,6 @@ def add_default_users_view(request):
     return Response(json_response, status=status.HTTP_200_OK)
 
 #-------------------------------------------------------------------------------#
+
+
+# if time not verification >rm data

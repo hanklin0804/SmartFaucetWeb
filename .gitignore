@@ -1,6 +1,9 @@
-mysql_data/
-__pycache__/
-reids_data/
 .env
-my-app/
+
+__pycache__/
+
+reids_data/
+mysql_data/
+
 frontend/
+my-app/
