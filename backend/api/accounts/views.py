@@ -17,6 +17,8 @@ from rest_framework import status
 from api.accounts.models import AccountModel
 from api.accounts.serializers import AccountSerializer
 
+# from rest_framework_simplejwt.views
+# from rest_framework_simplejwt.token_blacklist import views as jwt_views
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 # authentication_class = [JWTAuthentication]
@@ -29,8 +31,8 @@ import random
 from django.core.cache import cache
 
 # jwt
-from rest_framework_simplejwt.tokens import RefreshToken # AccessToken
-from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken, BlacklistMixin # AccessToken
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import authentication_classes, permission_classes
 
@@ -43,7 +45,7 @@ from django.views.decorators.csrf import csrf_exempt
 #     cache_key = f'verification_code_{email}'
 #     cache.set(cache_key, code) # timeout
 
-def get_stored_verification_code(email):
+def get_stored_verification_code(email) :
     cache_key = f'verification_code_{email}'
     return cache.get(cache_key)
 
@@ -64,6 +66,13 @@ def send_email_verification_code(account, email):
     cache_key = f'verification_code_{email}'
     cache.set(cache_key, verification_code)
 
+# def fun():
+#     # read cache 
+#     # if exist  read 
+#     # set  +1 # time ???
+#     # if >5 >return false # other false not send 
+#     pass
+
 
 
 @api_view(['POST'])
@@ -75,7 +84,7 @@ def signup_view(request):
         return Response(json_response, status=status.HTTP_404_NOT_FOUND)
     
     # = serializer def create(self, validated_data)
-    user = serializer.save()
+    user = serializer.save() # return object instance 
     user.set_password(user.password)
     user.is_active = False
     user.save()
@@ -93,8 +102,7 @@ def signup_view(request):
 @csrf_exempt
 def resend_email_verification_view(request):
     account = request.data.get('account')
-    user = AccountModel.objects.get(account=account)
-    email = user.email
+    email = AccountModel.objects.get(account=account).email
     send_email_verification_code(account, email)
 
     json_response = {
@@ -108,8 +116,7 @@ def resend_email_verification_view(request):
 @csrf_exempt
 def verify_email_verification_view(request):
     account = request.data.get('account')
-    user = AccountModel.objects.get(account=account)
-    email = user.email
+    email = AccountModel.objects.get(account=account).email
 
     user_provided_verification_code = request.data.get('verification_code')
 
@@ -130,6 +137,7 @@ def verify_email_verification_view(request):
 
 @api_view(['POST'])
 @csrf_exempt
+@permission_classes([AllowAny])
 def login_view(request):
     account = request.data.get('account') # POST[''] # POST.get
     password = request.data.get('password')
@@ -141,19 +149,19 @@ def login_view(request):
     login(request, user)
     
     # jwt: generate 
-    # refresh = RefreshToken.for_user(user)
-    # jwt_token = {
-    #     'access_token': str(refresh.access_token),
-    #     'refresh_token': str(refresh),
-    # }  
+    refresh = RefreshToken.for_user(user)
+    jwt_token = {
+        'access_token': str(refresh.access_token),
+        'refresh_token': str(refresh),
+    }  
     json_response = {
         'status': 'success',
         'message': 'login successfully',
         'user': {
             'account': user.account,
             'is_superuser': user.is_superuser,
-        }
-        # 'jwt_token': jwt_token
+        },
+        'jwt_token': jwt_token
     }
     return Response(json_response, status=status.HTTP_200_OK)
 
@@ -161,13 +169,13 @@ def login_view(request):
 
 @api_view(['POST'])
 @csrf_exempt
-# @authentication_classes([JWTAuthentication])
-# @permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def logout_view(request):
     # jwt: delete
-    # refresh_token = request.data.get('refresh_token')
-    # token = RefreshToken(refresh_token)
-    # token.blacklist()
+    refresh_token = request.data.get('refresh_token')
+    token = RefreshToken(refresh_token)
+    token.blacklist()
 
     logout(request) # clean auth session data
 
@@ -180,7 +188,19 @@ def logout_view(request):
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def jwt_view(request):
-    
+    refresh_token = request.data.get('refresh_token')
+    try: 
+        token = RefreshToken(refresh_token)
+        token.verify()
+    except Exception as ex:
+        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        message = template.format(type(ex).__name__, ex.args)
+        json_response = {
+            'status': 'error',
+            'message': message
+        }
+        return Response(json_response, status=status.HTTP_404_NOT_FOUND)
+
     json_response = {
         'status': 'success',
         'message': 'can get data',

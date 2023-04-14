@@ -29,6 +29,7 @@ sys.path.insert(0, APPS_DIR)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = "django-insecure-yc3=egbn!1+@tf-gflu8p-k2&%9=)p6jaqao*7&+n%@-m)z56z"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -39,6 +40,10 @@ AUTH_USER_MODEL = 'accounts.AccountModel'
 #-------------------------------------------------------------------------------#
 # rest framework
 REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES':[
+        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication', 
 
