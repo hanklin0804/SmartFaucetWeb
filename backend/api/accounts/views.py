@@ -85,6 +85,7 @@ def signup_view(request):
     json_response = {
         'status': 'success',
         'message': 'signup & send email verification  successfully',
+        'account': user.account,
     }
     return Response(json_response, status=status.HTTP_200_OK)
 
