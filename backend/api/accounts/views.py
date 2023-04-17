@@ -66,17 +66,34 @@ def send_email_verification_code(account, email):
     cache_key = f'verification_code_{email}'
     cache.set(cache_key, verification_code)
 
-# def fun():
-#     # read cache 
-#     # if exist  read 
-#     # set  +1 # time ???
-#     # if >5 >return false # other false not send 
-#     pass
+def add_count_in_cache(type, item):
+    cache_key = f'{type}_{item}'
+    count = cache.get_or_set(cache_key, 0)
+    count += 1
+    cache.set(cache_key, count)
+    return count
 
+def count_limit(type, item, limit):
+    cache_key = f'{type}_{item}'
+    count = cache.get(cache_key)
+    if count!=None and count >= limit:
+        return False
+    return True
 
+#-------------------------------------------------------------------------------#
 
 @api_view(['POST'])
 @csrf_exempt
+@permission_classes([AllowAny])
+def test(request):
+    json_response = {'test': 'i am test api'}
+    return Response(json_response, status=status.HTTP_200_OK)
+
+#-------------------------------------------------------------------------------#
+
+@api_view(['POST'])
+@csrf_exempt
+@permission_classes([AllowAny])
 def signup_view(request): 
     serializer = AccountSerializer(data=request.data)
     if not serializer.is_valid():
@@ -97,43 +114,77 @@ def signup_view(request):
         'account': user.account,
     }
     return Response(json_response, status=status.HTTP_200_OK)
+#-------------------------------------------------------------------------------#
 
 @api_view(['POST'])
 @csrf_exempt
+@permission_classes([AllowAny]) #?
 def resend_email_verification_view(request):
-    account = request.data.get('account')
-    email = AccountModel.objects.get(account=account).email
-    send_email_verification_code(account, email)
-
-    json_response = {
-        'status': 'success',
-        'message': 'resend email verification successfully'
-    }
-    return Response(json_response, status=status.HTTP_200_OK)
-
-
-@api_view(['POST'])
-@csrf_exempt
-def verify_email_verification_view(request):
-    account = request.data.get('account')
-    email = AccountModel.objects.get(account=account).email
-
-    user_provided_verification_code = request.data.get('verification_code')
-
-    stored_verification_code = get_stored_verification_code(email)
-    
-    if user_provided_verification_code == stored_verification_code:
-        user = AccountModel.objects.get(email=email)
-        user.is_active = True
-        user.save()
-
-        delete_stored_verification_code(email)
-        json_response = {'status': 'success', 'message': 'verification code successfully'}
-        return Response(json_response, status=status.HTTP_200_OK)
-    else:
-        json_response = {'status': 'error', 'message': 'verification code error'}
+    # if is_active = True 
+    #   not do anything
+    try:
+        account = request.data.get('account')
+        email = AccountModel.objects.get(account=account).email
+        if count_limit('emailverification_times', account, 2) == True:
+            count = add_count_in_cache('emailverification_times', account)
+            send_email_verification_code(account, email)
+            json_response = {
+                'status': 'success',
+                'message': 'resend email verification successfully',
+                'error times': count
+            }
+            return Response(json_response, status=status.HTTP_200_OK)
+        else:
+            json_response = {'status': 'error', 'message': 'send email times over 3, resend email need to wait 5 mins'}
+            return Response(json_response, status=status.HTTP_404_NOT_FOUND)
+        
+    except Exception as ex:
+        template = "An exception of type {0} occurred. Arguments:{1!r}"
+        message = template.format(type(ex).__name__, ex.args)
+        json_response = {
+            'status': 'error',
+            'message': message
+        }
         return Response(json_response, status=status.HTTP_404_NOT_FOUND)
 
+#-------------------------------------------------------------------------------#
+
+@api_view(['POST'])
+@csrf_exempt
+@permission_classes([AllowAny]) #?
+def verify_email_verification_view(request):
+    # if is_active = True 
+    #   not do anything
+    try:
+        account = request.data.get('account')
+        email = AccountModel.objects.get(account=account).email
+
+        user_provided_verification_code = request.data.get('verification_code')
+
+        stored_verification_code = get_stored_verification_code(email)
+        
+        if user_provided_verification_code == stored_verification_code:
+            user = AccountModel.objects.get(email=email)
+            user.is_active = True
+            user.save()
+
+            delete_stored_verification_code(email)
+            json_response = {'status': 'success', 'message': 'verification code successfully'}
+            return Response(json_response, status=status.HTTP_200_OK)
+        else:
+            json_response = {'status': 'error', 'message': 'verification code error'}
+            return Response(json_response, status=status.HTTP_404_NOT_FOUND)
+        
+    except Exception as ex:
+        template = "An exception of type {0} occurred. Arguments:{1!r}"
+        message = template.format(type(ex).__name__, ex.args)
+        json_response = {
+            'status': 'error',
+            'message': message
+        }
+        return Response(json_response, status=status.HTTP_404_NOT_FOUND)
+
+#-------------------------------------------------------------------------------#
 
 @api_view(['POST'])
 @csrf_exempt
@@ -141,29 +192,39 @@ def verify_email_verification_view(request):
 def login_view(request):
     account = request.data.get('account') # POST[''] # POST.get
     password = request.data.get('password')
-    user = authenticate(request, account=account, password=password)
-    if user is None:
-        json_response = {'status': 'error', 'message': 'Invalid username or password'}
-        return Response(json_response, status=status.HTTP_404_NOT_FOUND)
-    # login
-    login(request, user)
+
+    if count_limit('login_times', account, 3) == True:
+        user = authenticate(request, account=account, password=password)
+        if user is None:
+            if AccountModel.objects.filter(account=account).exists(): 
+                count = add_count_in_cache('login_times', account)
+                json_response = {'status': 'error', 'message': 'error password', 'error times': count}
+                return Response(json_response, status=status.HTTP_404_NOT_FOUND)
     
-    # jwt: generate 
-    refresh = RefreshToken.for_user(user)
-    jwt_token = {
-        'access_token': str(refresh.access_token),
-        'refresh_token': str(refresh),
-    }  
-    json_response = {
-        'status': 'success',
-        'message': 'login successfully',
-        'user': {
-            'account': user.account,
-            'is_superuser': user.is_superuser,
-        },
-        'jwt_token': jwt_token
-    }
-    return Response(json_response, status=status.HTTP_200_OK)
+            json_response = {'status': 'error', 'message': 'Invalid username or password'}
+            return Response(json_response, status=status.HTTP_404_NOT_FOUND)
+        # login
+        login(request, user)
+        
+        # jwt: generate 
+        refresh = RefreshToken.for_user(user)
+        jwt_token = {
+            'access_token': str(refresh.access_token),
+            'refresh_token': str(refresh),
+        }  
+        json_response = {
+            'status': 'success',
+            'message': 'login successfully',
+            'user': {
+                'account': user.account,
+                'is_superuser': user.is_superuser,
+            },
+            'jwt_token': jwt_token
+        }
+        return Response(json_response, status=status.HTTP_200_OK)
+    else:
+        json_response = {'status': 'error', 'message': 'password error times over 3, login need to wait 5 mins'}
+        return Response(json_response, status=status.HTTP_404_NOT_FOUND)
 
 #-------------------------------------------------------------------------------#
 
@@ -193,7 +254,7 @@ def jwt_view(request):
         token = RefreshToken(refresh_token)
         token.verify()
     except Exception as ex:
-        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        template = "An exception of type {0} occurred. Arguments:{1!r}"
         message = template.format(type(ex).__name__, ex.args)
         json_response = {
             'status': 'error',
@@ -209,27 +270,31 @@ def jwt_view(request):
 
 #-------------------------------------------------------------------------------#
 
-@api_view(['POST'])
-@csrf_exempt
-def add_default_users_view(request): 
-    for i in range(1, 11):
-        data = {"account": f"user{i}", "email": f"user{i}@gmail.com", "name": f"user{i}", "password": "1234", "phone": "1234"}
-        serializer = AccountSerializer(data=data)
-        if not serializer.is_valid():
-            json_response = {'status': 'error', 'message': serializer.errors}
-            return Response(json_response, status=status.HTTP_404_NOT_FOUND)
-        user = serializer.save()
-        user.set_password(user.password)
-        user.is_active = True
-        user.save()
+# @api_view(['POST'])
+# @csrf_exempt
+# @permission_classes([AllowAny])
+# def add_default_users_view(request): 
+#     for i in range(1, 11):
+#         data = {"account": f"user{i}", "email": f"user{i}@gmail.com", "name": f"user{i}", "password": "1234", "phone": "1234"}
+#         serializer = AccountSerializer(data=data)
+#         if not serializer.is_valid():
+#             json_response = {'status': 'error', 'message': serializer.errors}
+#             return Response(json_response, status=status.HTTP_404_NOT_FOUND)
+#         user = serializer.save()
+#         user.set_password(user.password)
+#         user.is_active = True
+#         user.save()
     
-    json_response = {
-        'status': 'success',
-        'message': 'default user1-10 created successfully (password=1234)',
-    }
-    return Response(json_response, status=status.HTTP_200_OK)
+#     json_response = {
+#         'status': 'success',
+#         'message': 'default user1-10 created successfully (password=1234)',
+#     }
+#     return Response(json_response, status=status.HTTP_200_OK)
 
 #-------------------------------------------------------------------------------#
 
 
+# TODO
 # if time not verification >rm data
+# signup: rewrite email
+# delete: not active account 
