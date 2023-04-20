@@ -56,7 +56,9 @@ sudo apt update
 sudo apt install python3-pip -y
 pip3 --version
 python3 -m pip install pipenv
+vim ~/.bashrc
 export PATH="$PATH:/home/$USER/.local/bin"
+# export PATH="$PATH:/home/$USER/.local/bin"
 
 
 
