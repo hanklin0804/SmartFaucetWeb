@@ -79,18 +79,38 @@ def add_count_in_cache(type, item):
 def count_limit(type, item, limit):
     cache_key = f'{type}_{item}'
     count = cache.get(cache_key)
-    if count!=None and count >= limit:
+    if count is not None and count >= limit:
         return False
     return True
 
-#-------------------------------------------------------------------------------#
+def store_signup_account(serializer):
+    print(serializer)
+    cache_key = f'signup_account_{serializer.account}'
+    user = cache.get_or_set(cache_key, serializer)
+    
+    
 
+#-------------------------------------------------------------------------------#
+import json
+import logging
+logger = logging.getLogger(__name__)
 @api_view(['POST'])
 @csrf_exempt
 @permission_classes([AllowAny])
 def test(request):
-    json_response = {'test': 'i am test api'}
-    return Response(json_response, status=status.HTTP_200_OK)
+    serializer = AccountSerializer(data=request.data)
+    # store_signup_account(serializer)
+    if not serializer.is_valid():
+        json_response = {'status': 'error', 'message': serializer.errors}
+        return Response(json_response, status=status.HTTP_404_NOT_FOUND)
+    
+    # user = serializer.save()
+    # user.data
+    # serializer.get_fields()
+    # logger.info('ssssssss')
+    # json_response = {type(serializer)}
+    # print(type(serializer))
+    return Response('s': 'a'}, status=status.HTTP_200_OK)
 
 #-------------------------------------------------------------------------------#
 
