@@ -3,9 +3,9 @@
         "model": "accounts.accountmodel", 
         "pk": 1,
         "fields":{
-            "account": "user1", 
-            "email": "user1@gmail.com", 
-            "name": "user1", 
+            "account": "user0", 
+            "email": "user0@gmail.com", 
+            "name": "user0", 
             "password": "1234", 
             "phone": "1234",
             "is_active": "1", 

@@ -45,6 +45,9 @@ from django.views.decorators.csrf import csrf_exempt
 #     cache_key = f'verification_code_{email}'
 #     cache.set(cache_key, code) # timeout
 
+from django.contrib.auth.models import Group
+
+
 def get_stored_verification_code(email) :
     cache_key = f'verification_code_{email}'
     return cache.get(cache_key)
@@ -104,6 +107,8 @@ def signup_view(request):
     user = serializer.save() # return object instance 
     user.set_password(user.password)
     user.is_active = False
+    group = Group.objects.get(name='Engineers')
+    group.uer_set.add(user)
     user.save()
 
     send_email_verification_code(user.account, user.email)
