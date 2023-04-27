@@ -35,6 +35,7 @@ from rest_framework_simplejwt.tokens import RefreshToken, BlacklistMixin # Acces
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import authentication_classes, permission_classes
+import jwt
 
 # csrf
 from django.views.decorators.csrf import csrf_exempt
@@ -47,6 +48,30 @@ from django.views.decorators.csrf import csrf_exempt
 
 from django.contrib.auth.models import Group
 
+
+# class CacheManager:
+#     def store_to_cache(stored_type: str, stored_id: str, stored_data: str, stored_time: int) -> int:
+#         cache_key = f'{stored_type}_{stored_id}'
+#         cache.set(cache_key, stored_data, stored_time)
+#     def delete_from_cache(stored_type: str, stored_id: str, stored_data: str) -> int:
+#         cache_key = f'{stored_type}_{stored_id}'
+#         cache.delete(cache_key, stored_data)
+#     def get_from_cache(stored_type: str, stored_id: str) -> int:
+#         cache_key = f'{stored_type}_{stored_id}'
+#         return cache.get(cache_key)
+
+
+
+def store_signup_account(json_data):
+    print(json_data)
+    account = json_data['account']
+    cache_key = f'signup_account_{account}'
+    cache.set(cache_key, json_data, 20)
+    
+def get_stored_signup_account(account):
+    cache_key = f'signup_account_{account}'
+    json_data = cache.get(cache_key)    
+    return json_data
 
 def get_stored_verification_code(email) :
     cache_key = f'verification_code_{email}'
@@ -83,12 +108,16 @@ def count_limit(type, item, limit):
         return False
     return True
 
-def store_signup_account(serializer):
-    print(serializer)
-    cache_key = f'signup_account_{serializer.account}'
-    user = cache.get_or_set(cache_key, serializer)
-    
-    
+#-------------------------------------------------------------------------------#
+# def encode_jwt(payload, secret_key):
+#     return jwt.encode(payload, secret_key, algorithm='HS256')
+# def decode_jwt(jwt_string, secret_key):
+#     try:
+#         payload = jwt.decode(jwt_string, secret_key, algorithms=['HS256'])
+#         return payload
+#     except:
+#         return ''
+
 
 #-------------------------------------------------------------------------------#
 import json
@@ -103,14 +132,14 @@ def test(request):
     if not serializer.is_valid():
         json_response = {'status': 'error', 'message': serializer.errors}
         return Response(json_response, status=status.HTTP_404_NOT_FOUND)
-    
+    store_signup_account(request.data)
     # user = serializer.save()
     # user.data
     # serializer.get_fields()
     # logger.info('ssssssss')
     # json_response = {type(serializer)}
     # print(type(serializer))
-    return Response('s': 'a'}, status=status.HTTP_200_OK)
+    return Response({'a': request.data}, status=status.HTTP_200_OK)
 
 #-------------------------------------------------------------------------------#
 
@@ -124,19 +153,19 @@ def signup_view(request):
         return Response(json_response, status=status.HTTP_404_NOT_FOUND)
     
     # = serializer def create(self, validated_data)
-    user = serializer.save() # return object instance 
-    user.set_password(user.password)
-    user.is_active = False
-    group = Group.objects.get(name='Engineers')
-    group.uer_set.add(user)
-    user.save()
+    # user = serializer.save() # return object instance 
+    # user.set_password(user.password)
+    # user.is_active = False
+    # group = Group.objects.get(name='Engineers')
+    # group.uer_set.add(user)
+    # user.save()
 
-    send_email_verification_code(user.account, user.email)
+    send_email_verification_code(serializer.data['account'], serializer.data['email'])
 
     json_response = {
         'status': 'success',
         'message': 'signup & send email verification  successfully',
-        'account': user.account,
+        'account': serializer.data['account'],
     }
     return Response(json_response, status=status.HTTP_200_OK)
 #-------------------------------------------------------------------------------#
@@ -189,9 +218,25 @@ def verify_email_verification_view(request):
         stored_verification_code = get_stored_verification_code(email)
         
         if user_provided_verification_code == stored_verification_code:
-            user = AccountModel.objects.get(email=email)
+            data = get_stored_signup_account(account)
+            serializer = AccountSerializer(data=data)
+            if not serializer.is_valid():
+                json_response = {'status': 'error', 'message': serializer.errors}
+                return Response(json_response, status=status.HTTP_404_NOT_FOUND)
+            
+            # = serializer def create(self, validated_data)
+            user = serializer.save() # return object instance 
+            user.set_password(user.password)
             user.is_active = True
+            group = Group.objects.get(name='Engineers')
+            group.uer_set.add(user)
             user.save()
+
+
+            # user = AccountModel.objects.get(email=email)
+            # user.is_active = True
+            # user.save()
+            
 
             delete_stored_verification_code(email)
             json_response = {'status': 'success', 'message': 'verification code successfully'}
@@ -286,6 +331,7 @@ def jwt_view(request):
             'message': message
         }
         return Response(json_response, status=status.HTTP_404_NOT_FOUND)
+    payload = jwt.decode(refresh_token, secret_key='aaa', algorithms=['HS256'])
 
     json_response = {
         'status': 'success',
@@ -319,7 +365,10 @@ def jwt_view(request):
 #-------------------------------------------------------------------------------#
 
 
+
+
 # TODO
-# if time not verification >rm data
+# if time not verification >rm data> use redis
 # signup: rewrite email
+# forget password
 # delete: not active account 
