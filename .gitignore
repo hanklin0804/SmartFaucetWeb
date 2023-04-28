@@ -6,4 +6,4 @@ reids_data/
 mysql_data/
 
 frontend/
-my-app/
+*_test.py

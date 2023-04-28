@@ -8,6 +8,9 @@ urlpatterns = [
     # path('defaultusers/', views.add_default_users_view, name='defaultusers'),
     path('verify.email/', views.verify_email_verification_view, name='verify.email'),
     path('resend.email/', views.resend_email_verification_view, name='resend.email'),
+    path('account.info/', views.account_information_view, name='account.info'),
+
     path('jwt/', views.jwt_view, name='jwt'),
+
     path('test/', views.test, name='test'),
 ]

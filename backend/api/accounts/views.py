@@ -168,7 +168,8 @@ def resend_email_verification_view(request):
     #   not do anything
     try:
         account = request.data.get('account')
-        email = AccountModel.objects.get(account=account).email
+        # email = AccountModel.objects.get(account=account).email
+        
         if count_limit('emailverification_times', account, 2) == True:
             count = add_count_in_cache('emailverification_times', account)
             send_email_verification_code(account, email)
@@ -286,12 +287,12 @@ def login_view(request):
 @api_view(['POST'])
 @csrf_exempt
 # @authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def logout_view(request):
-    # jwt: delete
-    refresh_token = request.data.get('refresh_token')
-    token = RefreshToken(refresh_token)
-    token.blacklist()
+    # # jwt: delete
+    # token = request.data.get('token')
+    # # token = RefreshToken(token)
+    # token.blacklist()
 
     logout(request) # clean auth session data
 
@@ -305,25 +306,34 @@ def logout_view(request):
 # @authentication_classes([JWTAuthentication])
 @permission_classes([AllowAny])
 def jwt_view(request):
-    token = request.data.get('token')
-    # return Response({'aa':'aa'}, status=status.HTTP_404_NOT_FOUND)
-    payload, ex = JWTUtils.verify_jwt(token)
-    if payload: 
+    payload = JWTUtils.verify_jwt(request)
+
+    json_response = {
+        'status': 'success',
+        'message': payload
+    }
+    return Response(json_response, status=status.HTTP_200_OK)
+   
+
+#-------------------------------------------------------------------------------#
+
+@api_view(['POST'])
+@csrf_exempt
+# @authentication_classes([JWTAuthentication])
+@permission_classes([AllowAny])
+def account_information_view(request):
+    payload, json_response = JWTUtils.verify_jwt(request)
+    if payload:
         json_response = {
             'status': 'success',
-            'message': payload
+            'message': payload['user_id']
         }
         return Response(json_response, status=status.HTTP_200_OK)
     else:
-        template = "An exception of type {0} occurred. Arguments:{1!r}"
-        message = template.format(type(ex).__name__, ex.args)
-        json_response = {
-            'status': 'error',
-            'message': message
-        }
         return Response(json_response, status=status.HTTP_404_NOT_FOUND)
 
 #-------------------------------------------------------------------------------#
+
 
 # @api_view(['POST'])
 # @csrf_exempt
