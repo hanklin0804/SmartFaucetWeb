@@ -45,16 +45,19 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication', 
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication', 
 
     ],
 }
 #-------------------------------------------------------------------------------#
+# jwt
 JWT_SECRET = 'secret'
 JWT_ALGORITHM = 'HS256'
-JWT_EXP_DELTA_SECONDS = 300 # 3600
+JWT_EXP_DELTA_SECONDS = 1 # 60
 
-# jwt
+
+#-------------------------------------------------------------------------------#
+# jwt simple
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),

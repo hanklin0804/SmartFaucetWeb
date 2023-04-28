@@ -1,15 +1,34 @@
-# from django.shortcuts import render
-
+from django.shortcuts import render
+from rest_framework.response import Response
+from rest_framework import status
+import requests
 # # Create your views here.
 
 
 
-# def get_devivce(request):
-#     pass
-#     # request
-#     # response
+def get_getdevice(request):
+    pass
+    ip = '192.168.1.1'
+    port = 1234
+    # url = f'http://{ip}/api/endpoint'
+    # frontend: 
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = response.json()
+            # save
+            return Response({'ok':'ok'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'error':'error'}, status=status.HTTP_404_NOT_FOUND)
+    except:
+        return Response({'error':'error'}, status=status.HTTP_404_NOT_FOUND)
+    
+    # request:
+    # getdevice
+    # response:
+    # return 
 
-#     return  
+    return
 
 # def which_irduty(requst):
 #     pass
@@ -159,13 +178,3 @@
 #     return
 
 
-# def get_getdevice(request):
-#     pass
-#     # frontend: 
-#     # 
-#     # request:
-#     # getdevice
-#     # response:
-#     # return 
-
-#     return

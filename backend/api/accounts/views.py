@@ -35,7 +35,8 @@ from rest_framework_simplejwt.tokens import RefreshToken, BlacklistMixin # Acces
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import authentication_classes, permission_classes
-import jwt
+
+from .jwt_utils import JWTUtils
 
 # csrf
 from django.views.decorators.csrf import csrf_exempt
@@ -107,17 +108,6 @@ def count_limit(type, item, limit):
     if count is not None and count >= limit:
         return False
     return True
-
-#-------------------------------------------------------------------------------#
-# def encode_jwt(payload, secret_key):
-#     return jwt.encode(payload, secret_key, algorithm='HS256')
-# def decode_jwt(jwt_string, secret_key):
-#     try:
-#         payload = jwt.decode(jwt_string, secret_key, algorithms=['HS256'])
-#         return payload
-#     except:
-#         return ''
-
 
 #-------------------------------------------------------------------------------#
 import json
@@ -276,12 +266,7 @@ def login_view(request):
         # login
         login(request, user)
         
-        # jwt: generate 
-        refresh = RefreshToken.for_user(user)
-        jwt_token = {
-            'access_token': str(refresh.access_token),
-            'refresh_token': str(refresh),
-        }  
+        jwt_token = JWTUtils.create_jwt(user.id, user_role='engineer', data=None)
         json_response = {
             'status': 'success',
             'message': 'login successfully',
@@ -300,7 +285,7 @@ def login_view(request):
 
 @api_view(['POST'])
 @csrf_exempt
-@authentication_classes([JWTAuthentication])
+# @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def logout_view(request):
     # jwt: delete
@@ -316,14 +301,20 @@ def logout_view(request):
 #-------------------------------------------------------------------------------#
 
 @api_view(['POST'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
+@csrf_exempt
+# @authentication_classes([JWTAuthentication])
+@permission_classes([AllowAny])
 def jwt_view(request):
-    refresh_token = request.data.get('refresh_token')
-    try: 
-        token = RefreshToken(refresh_token)
-        token.verify()
-    except Exception as ex:
+    token = request.data.get('token')
+    # return Response({'aa':'aa'}, status=status.HTTP_404_NOT_FOUND)
+    payload, ex = JWTUtils.verify_jwt(token)
+    if payload: 
+        json_response = {
+            'status': 'success',
+            'message': payload
+        }
+        return Response(json_response, status=status.HTTP_200_OK)
+    else:
         template = "An exception of type {0} occurred. Arguments:{1!r}"
         message = template.format(type(ex).__name__, ex.args)
         json_response = {
@@ -331,13 +322,6 @@ def jwt_view(request):
             'message': message
         }
         return Response(json_response, status=status.HTTP_404_NOT_FOUND)
-    payload = jwt.decode(refresh_token, secret_key='aaa', algorithms=['HS256'])
-
-    json_response = {
-        'status': 'success',
-        'message': 'can get data',
-    }
-    return Response(json_response, status=status.HTTP_200_OK)
 
 #-------------------------------------------------------------------------------#
 

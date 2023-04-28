@@ -47,3 +47,26 @@ def check_jwt(request):
 
 generate_jwt()
 
+
+
+# # 建立 JWT payload
+# def create_jwt_payload(user_id, email, role):
+#     now = datetime.datetime.utcnow()
+#     payload = {
+#         'iss': 'your-website.com',
+#         'sub': user_id,
+#         'aud': 'your-client-app',
+#         'exp': now + datetime.timedelta(minutes=30),
+#         'nbf': now,
+#         'iat': now,
+#         'jti': str(user_id) + str(now.timestamp()),
+#         'name': 'John Doe',
+#         'email': email,
+#         'role': role,
+#         'permissions': ['read', 'write'] if role == 'admin' else ['read'],
+#         'organization_id': 'org-1234',
+#         'locale': 'en_US',
+#     }
+#     return payload
+
+
