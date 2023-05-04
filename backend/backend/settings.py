@@ -55,7 +55,12 @@ JWT_SECRET = 'secret'
 JWT_ALGORITHM = 'HS256'
 JWT_EXP_DELTA_SECONDS = 1 # 60
 
-
+#-------------------------------------------------------------------------------#
+# captcha
+# CAPTCHA_CACHE = 'default'
+CAPTCHA_LENGTH = 4  # 設置 captcha 的長度
+CAPTCHA_TIMEOUT = 300  # 設置 captcha 的過期時間，以秒為單位
+CAPTCHA_IMAGE_SIZE = (120, 40)  # 設置 captcha 圖像的大小
 #-------------------------------------------------------------------------------#
 # jwt simple
 SIMPLE_JWT = {
@@ -89,11 +94,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'api.accounts',
+    'api.devices',
     'rest_framework',
     'django_redis',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
+    # 'captcha',
 ]
 #-------------------------------------------------------------------------------#
 MIDDLEWARE = [
