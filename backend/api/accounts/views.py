@@ -36,7 +36,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import authentication_classes, permission_classes
 
-from .jwt_utils import JWTUtils
+
 
 # csrf
 from django.views.decorators.csrf import csrf_exempt
@@ -51,50 +51,11 @@ from django.contrib.auth.models import Group
 
 import json
 
-class CacheManager:
-    def store_to_cache(stored_type: str, stored_id: str, stored_data: dict, stored_time: int, count=3): # time: sec
-        cache_key = f'{stored_type}:{stored_id}'
-        cache.set(cache_key, stored_data, stored_time)
-    def delete_from_cache(stored_type: str, stored_id: str):
-        cache_key = f'{stored_type}:{stored_id}'
-        cache.delete(cache_key)
-    def get_from_cache(stored_type: str, stored_id: str) -> int:
-        cache_key = f'{stored_type}:{stored_id}'
-        return cache.get(cache_key)
-    def store_to_cache(stored_type: str, stored_id: str, stored_data: dict, stored_time: int):
-        cache_key = f'{stored_type}:{stored_id}'
-        cache.set(cache_key, stored_data, stored_time)
+from .jwt_utils import JWTUtils
+from .captcha_utils import CaptchaManager
+from .cache_utils import CacheManager
 
-    def store_data_get_count(stored_type: str, stored_id: str, stored_data: dict, stored_time: int, count: int): # time: sec
-        cache_key = f'{stored_type}:{stored_id}'
-        if cache.get(cache_key): 
-            stored_data = cache.get(cache_key)
-            stored_count = stored_data['count']
-            stored_count = stored_count+1
-            if stored_count > count:
-                return False
-            else:
-                stored_data['count'] = stored_count
-                # cache.set(cache_key, stored_data, stored_time)
-                # return stored_data
-        else:
-            stored_data['count'] = 1
-            # cache.set(cache_key, stored_data, stored_time)
-            # return stored_data
-
-        # count not over
-        if stored_type == 'signup_account':
-            stored_data['verification_code'] =  send_email_verification_code(stored_data['account'], stored_data['email'])
-            cache.set(cache_key, stored_data, stored_time)
-        elif stored_type == 'login_account':
-            stored_data['captcha'] , captcha_image_url = get_captcha_url()
-            cache.set(cache_key, stored_data, stored_time)
-        cache.get(cache_key, stored_data, stored_time)
-        return  captcha_image_url# stored_data['count']
-
-    def add_stored_data(stored_data, add_col, add_data):
-        stored_data[add_col] = add_data
-
+#-------------------------------------------------------------------------------#
 
 
 # def store_signup_account(json_data):
@@ -150,26 +111,9 @@ class CacheManager:
 # #-------------------------------------------------------------------------------#
 
 
-# class CacheManager:
-#     def store_to_cache(stored_type: str, stored_id: str, stored_data: str, stored_time: int) -> int:
-#         cache_key = f'{stored_type}_{stored_id}'
-#         cache.set(cache_key, stored_data, stored_time)
-#     def delete_from_cache(stored_type: str, stored_id: str, stored_data: str) -> int:
-#         cache_key = f'{stored_type}_{stored_id}'
-#         cache.delete(cache_key, stored_data)
-#     def get_from_cache(stored_type: str, stored_id: str) -> int:
-#         cache_key = f'{stored_type}_{stored_id}'
-#         return cache.get(cache_key)
 
 
 
-def get_stored_verification_code(email) :
-    cache_key = f'verification_code_{email}'
-    return json.loads(cache.get(cache_key))
-
-def delete_stored_verification_code(email):
-    cache_key = f'verification_code_{email}'
-    cache.delete(cache_key)
 
 def send_email_verification_code(account, email):
     """
@@ -220,12 +164,106 @@ from django.conf import settings
 
 
 from captcha.image import ImageCaptcha
-import captcha
 # from captcha.helpers import captcha_image_url, random_char_challenge, reverse
 # from captcha.urls import reverse
 
-from .captcha_utils import get_captcha_url
+# from .captcha_utils import generate_captcha
 logger = logging.getLogger(__name__)
+
+import traceback
+
+@api_view(['POST'])
+@csrf_exempt
+@permission_classes([AllowAny])
+def sample_view(request):
+    try:
+        # code
+        pass
+    except Exception as ex:
+        current_frame = traceback.extract_tb(ex.__traceback__)
+        file_name, line_number, function_name, text = current_frame[-1]
+
+        json_data = {
+            'File:': file_name,
+            'Line:': line_number,
+            'Function:': function_name,
+            'Text:': text,
+            'Error':
+            {
+                'error_class': ex.__class__.__name__,
+                'error_message:': ex.args 
+            }           
+        }
+        return JsonResponse(json_data)
+
+#-------------------------------------------------------------------------------#
+
+@api_view(['GET'])
+@csrf_exempt
+@permission_classes([AllowAny])
+def generate_captcha_view(request):
+    try:
+        # create new captcha and store to cache
+        image_url = CaptchaManager.generate_captcha() 
+        return JsonResponse({'iamge_url': image_url}, status=status.HTTP_200_OK)
+    except:
+        return JsonResponse({'status': 'error'}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['POST'])
+@csrf_exempt
+@permission_classes([AllowAny])
+def verify_captcha_view(request):
+    try:
+        image_url = request.data.get('image_url')
+        captcha_value = request.data.get('captcha_value')
+        if CaptchaManager.verify_captcha(captcha_value, image_url):
+            return JsonResponse({'status': 'success'}, status=status.HTTP_200_OK)
+        else:
+            return JsonResponse({'status': 'error'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as ex:
+        return JsonResponse({'status': 'error'}, status=status.HTTP_404_NOT_FOUND)
+#-------------------------------------------------------------------------------#
+
+
+def check_login(request, account: str, password: str) -> dict:
+    user = authenticate(account=account, password=password)
+    if not user:
+        # error
+        if AccountModel.objects.filter(account=account).exists():
+            # password error
+            json_data = {'status': 'error_password'}
+            # add count
+        else:
+            # other error
+            json_data = {'status': 'error_empty_or_account_not_exist'}
+    else:
+        login(request, user)
+        json_data = {'status': 'success'}
+    
+    return json_data
+
+
+
+
+
+    # # login
+    # login(request, user)
+
+    # jwt_token = JWTUtils.create_jwt(user.id, user_role='engineer', data=None)
+    # json_response = {
+    #     'status': 'success',
+    #     'message': 'login successfully',
+    #     'user': {
+    #         'account': user.account,
+    #         'is_superuser': user.is_superuser,
+    #     },
+    #     'jwt_token': jwt_token
+    # }
+    # return Response(json_response, status=status.HTTP_200_OK)
+    # else:
+    # json_response = {'status': 'error', 'message': 'password error times over 3, login need to wait 5 mins'}
+    # return Response(json_response, status=status.HTTP_404_NOT_FOUND)
+
 @api_view(['POST'])
 @csrf_exempt
 @permission_classes([AllowAny])
@@ -233,46 +271,52 @@ def test(request):
     # TODO
     # [] read account, password
     # [] read login count
-    # captcha_value, captcha_iamge_url = get_captcha_url()
-    account = 'user1'
-    test = CacheManager.store_data_get_count(stored_type='login_account', stored_id=account, stored_data={}, stored_time=360, count=3)
-    return JsonResponse({'captcha_value': test, 'captcha_iamge_url': 'captcha_iamge_url'})
+    # pass 
+    account = request.data.get('account')
+    password = request.data.get('password')
+    is_under_limit = CacheManager.store_data_get_count(stored_type='login_account', stored_id=account, stored_data={}, stored_time=360, count=5) # false = over
+    if is_under_limit:
+        # do 
+        json_data = check_login(request, account, password)
+        return JsonResponse(json_data, status=status.HTTP_200_OK)
+    else:
+        return JsonResponse({'status': 'error_count'}, status=status.HTTP_404_NOT_FOUND)
+
+
+    account = request.data.get('account') # POST[''] # POST.get
+    password = request.data.get('password')
+
+    if count_limit('login_times', account, 3) == True:
+
+
+        user = authenticate(request, account=account, password=password)
+        if user is None:
+            if AccountModel.objects.filter(account=account).exists(): 
+                count = add_count_in_cache('login_times', account)
+                json_response = {'status': 'error', 'message': 'error password', 'error times': count}
+                return Response(json_response, status=status.HTTP_404_NOT_FOUND)
+    
+            json_response = {'status': 'error', 'message': 'Invalid username or password'}
+            return Response(json_response, status=status.HTTP_404_NOT_FOUND)
+        # login
+        login(request, user)
+        
+        jwt_token = JWTUtils.create_jwt(user.id, user_role='engineer', data=None)
+        json_response = {
+            'status': 'success',
+            'message': 'login successfully',
+            'user': {
+                'account': user.account,
+                'is_superuser': user.is_superuser,
+            },
+            'jwt_token': jwt_token
+        }
+        return Response(json_response, status=status.HTTP_200_OK)
+    else:
+        json_response = {'status': 'error', 'message': 'password error times over 3, login need to wait 5 mins'}
+        return Response(json_response, status=status.HTTP_404_NOT_FOUND)
     
   
-    json_response = {
-        'status': 'success',
-        'message': 'signup & send email verification  successfully',
-        'time': image
-    }
-    return Response(json_response, status=status.HTTP_200_OK)   
-
-
-    # # 從 Redis 中獲取 captcha 值，如果不存在，則創建一個新的值
-    # captcha_id = request.POST.get('captcha_id')
-    # if captcha_id:
-    #     captcha_value = r.get(captcha_id)
-    # else:
-    #     captcha_value = None
-
-    # if not captcha_value:
-    #     # 創建新的 captcha 值
-    #     captcha_value = captcha.random_string(length=settings.CAPTCHA_LENGTH)
-
-    #     # 將 captcha 值存儲到 Redis 中，並設置過期時間
-    #     r.setex(captcha_value, settings.CAPTCHA_TIMEOUT, captcha_value)
-    #     captcha_id = captcha_value
-
-    # # 創建 captcha 圖片
-    # image = captcha.create_image(captcha_value)
-    # buf = io.BytesIO()
-    # image.save(buf, 'png')
-    # image_str = base64.b64encode(buf.getvalue()).decode('utf-8')
-    # image_url = f'data:image/png;base64,{image_str}'
-
-    # # 返回 captcha 圖片的 URL 和 captcha_id
-    # return JsonResponse({'image_url': image_url, 'captcha_id': captcha_id})
-
-
 #-------------------------------------------------------------------------------#
 
 @api_view(['POST'])
