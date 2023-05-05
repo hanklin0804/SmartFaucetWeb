@@ -12,7 +12,7 @@ urlpatterns = [
 
     path('jwt/', views.jwt_view, name='jwt'),
 
-    path('test/', views.test, name='test'),
+    # path('test/', views.test, name='test'),
     path('generate.captcha/', views.generate_captcha_view, name='generate.captcha'),
     path('verify.captcha/', views.verify_captcha_view, name='verify.captcha')
 ]

@@ -55,94 +55,9 @@ from .jwt_utils import JWTUtils
 from .captcha_utils import CaptchaManager
 from .cache_utils import CacheManager
 
+
 #-------------------------------------------------------------------------------#
 
-
-# def store_signup_account(json_data):
-#     store_to_cache('signup_account', json_data['account'], json_data, 1) 
-#     # print(json_data)
-#     # account = json_data['account']
-#     # cache_key = f'signup_account_{account}'
-#     # cache.set(cache_key, json_data, 20)
-    
-# def get_stored_signup_account(account):
-#     return get_from_cache('signup_account', account)
-#     # cache_key = f'signup_account_{account}'
-#     # json_data = cache.get(cache_key)    
-#     # return json_data
-
-# def get_stored_verification_code(email) :
-#     get_from_cache('verification_code', email) 
-#     # cache_key = f'verification_code_{email}'
-#     # return cache.get(cache_key)
-
-# def delete_stored_verification_code(email):
-#     delete_from_cache('verification_code', email)
-#     cache_key = f'verification_code_{email}'
-#     cache.delete(cache_key)
-
-# def send_email_verification_code(account, email):
-#     # generate
-#     verification_code = ''.join([str(random.randint(0,9)) for _ in range(6)])
-#     # send
-#     subject =  'T.A.P. verification code'
-#     message = render_to_string('email_template.txt', {'account': account, 'verification_code': verification_code})
-#     from_email = 's11a02d@gmail.com'
-#     recipient_list = [email]
-#     send_mail(subject, message, from_email, recipient_list)
-#     # store
-#     cache_key = f'verification_code_{email}'
-#     cache.set(cache_key, verification_code)
-
-# def add_count_in_cache(type, item):
-#     cache_key = f'{type}_{item}'
-#     count = cache.get_or_set(cache_key, 0)
-#     count += 1
-#     cache.set(cache_key, count)
-#     return count
-
-# def count_limit(type, item, limit):
-#     cache_key = f'{type}_{item}'
-#     count = cache.get(cache_key)
-#     if count is not None and count >= limit:
-#         return False
-#     return True
-
-# #-------------------------------------------------------------------------------#
-
-
-
-
-
-
-def send_email_verification_code(account, email):
-    """
-    Generate verification code and send email to signup account.
-    """
-    verification_code = ''.join([str(random.randint(0,9)) for _ in range(6)])
-    subject =  'T.A.P. verification code'
-    message = render_to_string('email_template.txt', {'account': account, 'verification_code': verification_code})
-    from_email = 's11a02d@gmail.com'
-    recipient_list = [email]
-    send_mail(subject, message, from_email, recipient_list) # slow 
-    return verification_code
-
-
-
-
-def add_count_in_cache(type, item):
-    cache_key = f'{type}_{item}'
-    count = cache.get_or_set(cache_key, 0)
-    count += 1
-    cache.set(cache_key, count)
-    return count
-
-def count_limit(type, item, limit):
-    cache_key = f'{type}_{item}'
-    count = cache.get(cache_key)
-    if count is not None and count >= limit:
-        return False
-    return True
 
 #-------------------------------------------------------------------------------#
 import json
@@ -195,9 +110,19 @@ def sample_view(request):
             }           
         }
         return JsonResponse(json_data)
+    
+    # except Exception as ex:
+    #     template = "An exception of type {0} occurred. Arguments:{1!r}"
+    #     message = template.format(type(ex).__name__, ex.args)
+    #     json_response = {
+    #         'status': 'error',
+    #         'message': message
+    #     }
+    #     return Response(json_response, status=status.HTTP_404_NOT_FOUND)
+
 
 #-------------------------------------------------------------------------------#
-
+# ok
 @api_view(['GET'])
 @csrf_exempt
 @permission_classes([AllowAny])
@@ -205,7 +130,7 @@ def generate_captcha_view(request):
     try:
         # create new captcha and store to cache
         image_url = CaptchaManager.generate_captcha() 
-        return JsonResponse({'iamge_url': image_url}, status=status.HTTP_200_OK)
+        return JsonResponse({'status':'success', 'iamge_url': image_url}, status=status.HTTP_200_OK)
     except:
         return JsonResponse({'status': 'error'}, status=status.HTTP_404_NOT_FOUND)
     
@@ -224,142 +149,85 @@ def verify_captcha_view(request):
         return JsonResponse({'status': 'error'}, status=status.HTTP_404_NOT_FOUND)
 #-------------------------------------------------------------------------------#
 
-
-def check_login(request, account: str, password: str) -> dict:
+def login_work(request, account: str, password: str) -> dict:
     user = authenticate(account=account, password=password)
-    if not user:
+    if user:
+        login(request, user)
+        json_data = {'status': 'success'}
+    else:
         # error
         if AccountModel.objects.filter(account=account).exists():
             # password error
-            json_data = {'status': 'error_password'}
+            json_data = {'status': 'error'} #, 'message': 'password'}
             # add count
         else:
             # other error
-            json_data = {'status': 'error_empty_or_account_not_exist'}
-    else:
-        login(request, user)
-        json_data = {'status': 'success'}
-    
-    return json_data
+            json_data = {'status': 'error'} #, 'message': 'empty or not exist'}
+        
+    return json_data # user
 
-
-
-
-
-    # # login
-    # login(request, user)
-
-    # jwt_token = JWTUtils.create_jwt(user.id, user_role='engineer', data=None)
-    # json_response = {
-    #     'status': 'success',
-    #     'message': 'login successfully',
-    #     'user': {
-    #         'account': user.account,
-    #         'is_superuser': user.is_superuser,
-    #     },
-    #     'jwt_token': jwt_token
-    # }
-    # return Response(json_response, status=status.HTTP_200_OK)
-    # else:
-    # json_response = {'status': 'error', 'message': 'password error times over 3, login need to wait 5 mins'}
-    # return Response(json_response, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
 @csrf_exempt
 @permission_classes([AllowAny])
-def test(request):
+def login_view(request):
     # TODO
-    # [] read account, password
-    # [] read login count
-    # pass 
+    # [x] read account, password
+    # [x] read login count
+    # [x] check account, password = auth function
+    # [x] login = login function
+    # [] get user data
+    # [] generate jwt
     account = request.data.get('account')
     password = request.data.get('password')
-    is_under_limit = CacheManager.store_data_get_count(stored_type='login_account', stored_id=account, stored_data={}, stored_time=360, count=5) # false = over
-    if is_under_limit:
-        # do 
-        json_data = check_login(request, account, password)
+    # logic not very ok
+    is_under_limit = CacheManager.store_data_get_count(stored_type='login_account', stored_id=account, stored_data={}, stored_time=300, count=3) # false = over
+    if is_under_limit: 
+        json_data = login_work(request, account, password)
+        # TODO jwt
         return JsonResponse(json_data, status=status.HTTP_200_OK)
     else:
-        return JsonResponse({'status': 'error_count'}, status=status.HTTP_404_NOT_FOUND)
-
-
-    account = request.data.get('account') # POST[''] # POST.get
-    password = request.data.get('password')
-
-    if count_limit('login_times', account, 3) == True:
-
-
-        user = authenticate(request, account=account, password=password)
-        if user is None:
-            if AccountModel.objects.filter(account=account).exists(): 
-                count = add_count_in_cache('login_times', account)
-                json_response = {'status': 'error', 'message': 'error password', 'error times': count}
-                return Response(json_response, status=status.HTTP_404_NOT_FOUND)
-    
-            json_response = {'status': 'error', 'message': 'Invalid username or password'}
-            return Response(json_response, status=status.HTTP_404_NOT_FOUND)
-        # login
-        login(request, user)
-        
-        jwt_token = JWTUtils.create_jwt(user.id, user_role='engineer', data=None)
-        json_response = {
-            'status': 'success',
-            'message': 'login successfully',
-            'user': {
-                'account': user.account,
-                'is_superuser': user.is_superuser,
-            },
-            'jwt_token': jwt_token
-        }
-        return Response(json_response, status=status.HTTP_200_OK)
-    else:
-        json_response = {'status': 'error', 'message': 'password error times over 3, login need to wait 5 mins'}
-        return Response(json_response, status=status.HTTP_404_NOT_FOUND)
-    
+        return JsonResponse({'status': 'error'}, status=status.HTTP_404_NOT_FOUND)
   
 #-------------------------------------------------------------------------------#
+
+
+def signup_work(request, serializer):
+    pass 
 
 @api_view(['POST'])
 @csrf_exempt
 @permission_classes([AllowAny])
 def signup_view(request):
-
     # TODO
-    # user
     # [x] get data 
     # [x?] get serializer
-    # [x] check sql ok? serializer to check
-    # [] check cache exist? get 
-  
-    #   get=True count>3? wait min
-    #   get=True count<3? count+1 
-    #   get=False> count+1> varif 
-    # [] check 
-
-    serializer = AccountSerializer(data=request.data)
+    # [x] check sql exist? serializer
+    # [] check cache exist?
     
-    # store_signup_account(serializer)
-    if not serializer.is_valid(): # sql error
-        json_response = {'status': 'error', 'message': serializer.errors}
-        return Response(json_response, status=status.HTTP_404_NOT_FOUND)
-    # user = serializer.save() # return object instance 
-    # user.set_password(user.password)
-    # user.is_active = False
-    # group = Group.objects.get(name='Engineers')
-    # group.uer_set.add(user)
-    # user.save()
+    serializer = AccountSerializer(data=request.data) 
+    # store serializer?
+    # check sql 
+    if serializer.is_valid():
+        # not store to sql
+        # check cache 
+        is_under_limit = CacheManager.store_data_get_count(stored_type='signup_account', stored_id=serializer.data['account'], stored_data=serializer.data, stored_time=300, count=3)
+        if is_under_limit:
+            return Response({'status': 'success'}, status=status.HTTP_200_OK) 
+        else:
+            return Response({'status': 'error_count'}, status=status.HTTP_404_NOT_FOUND)  
+    else:
+        return Response({'status': 'error'}, status=status.HTTP_404_NOT_FOUND)  
 
-    # send_email_verification_code(serializer.data['account'], serializer.data['email'])
+        # user = serializer.save() # return object instance 
+        # user.set_password(user.password)
+        # user.is_active = False
+        # group = Group.objects.get(name='Engineers')
+        # group.uer_set.add(user)
+        # user.save()
 
-    count = CacheManager.store_data_get_count(stored_type='signup_account', stored_id=serializer.data['account'], stored_data=serializer.data, stored_time=360, count=3)
-
-    json_response = {
-        'status': 'success',
-        'message': 'signup & send email verification  successfully',
-        'account': serializer.data['account'],
-        'time': count
-    }
-    return Response(json_response, status=status.HTTP_200_OK)   
+        # send_email_verification_code(serializer.data['account'], serializer.data['email'])
+    
 
 
 
@@ -373,37 +241,15 @@ def resend_email_verification_view(request):
     #   not do anything
     try:
         account = request.data.get('account')
-        count = CacheManager.store_data_get_count(stored_type='signup_account', stored_id=account, stored_data=None, stored_time=60, count=3)
-        json_response = {
-            'status': 'success',
-            'message': 'signup & send email verification  successfully',
-            'account': account,
-            'time': count
-        }
-        return Response(json_response, status=status.HTTP_200_OK)   
+        # CacheManager.store_to_cache(stored_type='login_account', stored_id=account, stored_data={}, stored_time=300)
+        is_under_limit = CacheManager.store_data_get_count(stored_type='signup_account', stored_id=account, stored_data=None, stored_time=300, count=3)
+        if is_under_limit:
+            return Response({'status': 'success'}, status=status.HTTP_200_OK)   
+        else:
+            return Response({'status': 'error_count'}, status=status.HTTP_404_NOT_FOUND)  
+    except:
+        return Response({'status': 'error'}, status=status.HTTP_404_NOT_FOUND)  
 
-        
-        # if count_limit('emailverification_times', account, 2) == True:
-        #     count = add_count_in_cache('emailverification_times', account)
-        #     send_email_verification_code(account, email)
-        #     json_response = {
-        #         'status': 'success',
-        #         'message': 'resend email verification successfully',
-        #         'error times': count
-        #     }
-        #     return Response(json_response, status=status.HTTP_200_OK)
-        # else:
-        #     json_response = {'status': 'error', 'message': 'send email times over 3, resend email need to wait 5 mins'}
-        #     return Response(json_response, status=status.HTTP_404_NOT_FOUND)
-        
-    except Exception as ex:
-        template = "An exception of type {0} occurred. Arguments:{1!r}"
-        message = template.format(type(ex).__name__, ex.args)
-        json_response = {
-            'status': 'error',
-            'message': message
-        }
-        return Response(json_response, status=status.HTTP_404_NOT_FOUND)
 
 #-------------------------------------------------------------------------------#
 
@@ -411,11 +257,18 @@ def resend_email_verification_view(request):
 @csrf_exempt
 @permission_classes([AllowAny]) #?
 def verify_email_verification_view(request):
-    # if is_active = True 
-    #   not do anything
-    # try:
+    # TODO
+    # [] count
+    # [] verify
+    # [] signup setting & save
+    # [] setting & save
+    # [] delete? 
+
+
     account = request.data.get('account')
     user_provided_verification_code = request.data.get('verification_code')
+    # TODO 
+    is_under_limit = CacheManager.store_data_get_count(stored_type='signup_account', stored_id=account, stored_data=None, stored_time=300, count=3)
     
     user_data = CacheManager.get_from_cache(stored_type='signup_account', stored_id=account)
     # return Response(user_data.pop ('verification_code', 'count'), status=status.HTTP_200_OK)
@@ -460,42 +313,6 @@ def verify_email_verification_view(request):
     #     }
     #     return Response(json_response, status=status.HTTP_404_NOT_FOUND)
 
-#-------------------------------------------------------------------------------#
-
-@api_view(['POST'])
-@csrf_exempt
-@permission_classes([AllowAny])
-def login_view(request):
-    account = request.data.get('account') # POST[''] # POST.get
-    password = request.data.get('password')
-
-    if count_limit('login_times', account, 3) == True:
-        user = authenticate(request, account=account, password=password)
-        if user is None:
-            if AccountModel.objects.filter(account=account).exists(): 
-                count = add_count_in_cache('login_times', account)
-                json_response = {'status': 'error', 'message': 'error password', 'error times': count}
-                return Response(json_response, status=status.HTTP_404_NOT_FOUND)
-    
-            json_response = {'status': 'error', 'message': 'Invalid username or password'}
-            return Response(json_response, status=status.HTTP_404_NOT_FOUND)
-        # login
-        login(request, user)
-        
-        jwt_token = JWTUtils.create_jwt(user.id, user_role='engineer', data=None)
-        json_response = {
-            'status': 'success',
-            'message': 'login successfully',
-            'user': {
-                'account': user.account,
-                'is_superuser': user.is_superuser,
-            },
-            'jwt_token': jwt_token
-        }
-        return Response(json_response, status=status.HTTP_200_OK)
-    else:
-        json_response = {'status': 'error', 'message': 'password error times over 3, login need to wait 5 mins'}
-        return Response(json_response, status=status.HTTP_404_NOT_FOUND)
 
 #-------------------------------------------------------------------------------#
 

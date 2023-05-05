@@ -60,7 +60,7 @@ JWT_EXP_DELTA_SECONDS = 1 # 60
 # CAPTCHA_CACHE = 'default'
 CAPTCHA_LENGTH = 4  # 設置 captcha 的長度
 CAPTCHA_TIMEOUT = 300  # 設置 captcha 的過期時間，以秒為單位
-CAPTCHA_IMAGE_SIZE = (120, 40)  # 設置 captcha 圖像的大小
+CAPTCHA_IMAGE_SIZE = (120, 60)  # 設置 captcha 圖像的大小
 #-------------------------------------------------------------------------------#
 # jwt simple
 SIMPLE_JWT = {

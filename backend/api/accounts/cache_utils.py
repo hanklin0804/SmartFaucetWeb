@@ -41,6 +41,42 @@ class CacheManager:
     def add_stored_data(stored_data, add_col, add_data):
         stored_data[add_col] = add_data
 
+    # def count(count, limit):
+    #     if count > limit:
+    #         return False
+    #     else:
+
+
+
+    # def store_data_get_count(stored_type: str, stored_id: str, stored_data: dict, new_col: str, stored_time: int, count: int): # time: sec
+    #     cache_key = f'{stored_type}:{stored_id}'
+    #     if new_col:
+        
+    #     if cache.get(cache_key): 
+    #         if new_col:
+                
+    #         stored_data = cache.get(cache_key)
+    #         stored_count = stored_data[f'count_{stored_type}']
+    #         stored_count = stored_count+1
+    #         if stored_count > count:
+    #             return False
+    #         else:
+    #             stored_data[f'count_{stored_type}'] = stored_count
+    #     elif not stored_data :
+    #         stored_data[f'count_{stored_type}'] = 1
+
+    #     # do 
+    #     if stored_type == 'signup_send_email':
+    #         stored_data['verification_code'] =  send_email_verification_code(stored_data['account'], stored_data['email'])
+    #     if stored_type == ''
+    #     if stored_type == 'login_account':
+    #         login_work(request, account, password)
+    #     cache.set(cache_key, stored_data, stored_time) 
+    #     return stored_data[f'count_{stored_type}'] 
+
+    # def add_stored_data(stored_data, add_col, add_data):
+    #     stored_data[add_col] = add_data
+
 
 
 # CacheManager.store_data_get_count(stored_type='login_account', stored_id=account, stored_data={}, stored_time=360, count=3)
