@@ -101,6 +101,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'captcha',
+    'django_ratelimit',
 ]
 #-------------------------------------------------------------------------------#
 MIDDLEWARE = [

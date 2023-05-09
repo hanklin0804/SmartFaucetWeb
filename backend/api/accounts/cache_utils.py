@@ -2,6 +2,8 @@ from django.core.cache import cache
 from .email_verification_utils import send_email_verification_code
 
 class CacheManager:
+        
+            
     def store_to_cache(stored_type: str, stored_id: str, stored_data: dict, stored_time: int): # time: sec
         cache_key = f'{stored_type}:{stored_id}'
         cache.set(cache_key, stored_data, stored_time)
@@ -15,67 +17,38 @@ class CacheManager:
         cache_key = f'{stored_type}:{stored_id}'
         cache.set(cache_key, stored_data, stored_time)
 
-    def store_data_get_count(stored_type: str, stored_id: str, stored_data: dict, stored_time: int, count: int): # time: sec
+    def store_data_get_count(stored_type: str, stored_id: str, stored_data: dict, stored_time: int, count_limit: int, verification_code=None): # time: sec
         cache_key = f'{stored_type}:{stored_id}'
         if cache.get(cache_key): 
             stored_data = cache.get(cache_key)
             stored_count = stored_data['count']
             stored_count = stored_count+1
-            if stored_count > count:
+            if stored_count > count_limit:
                 return False
             else:
-                stored_data['count'] = stored_count
+                stored_data['count']  = stored_count
                 # cache.set(cache_key, stored_data, stored_time)
                 # return stored_data
         else:
-            stored_data['count'] = 1
+            stored_data['count']  = 1
             # cache.set(cache_key, stored_data, stored_time)
             # return stored_data
+  
 
         # do 
         if stored_type == 'signup_account':
             stored_data['verification_code'] =  send_email_verification_code(stored_data['account'], stored_data['email'])
+        if stored_type == 'verify_signup':
+            stored_verification_code = cache.get(f'signup_account:{stored_id}')['verification_code']
+            if stored_verification_code != verification_code:
+                return False
+        
         cache.set(cache_key, stored_data, stored_time) 
-        return stored_data['count'] 
+        return True # stored_data['count'] 
+    
 
     def add_stored_data(stored_data, add_col, add_data):
         stored_data[add_col] = add_data
-
-    # def count(count, limit):
-    #     if count > limit:
-    #         return False
-    #     else:
-
-
-
-    # def store_data_get_count(stored_type: str, stored_id: str, stored_data: dict, new_col: str, stored_time: int, count: int): # time: sec
-    #     cache_key = f'{stored_type}:{stored_id}'
-    #     if new_col:
-        
-    #     if cache.get(cache_key): 
-    #         if new_col:
-                
-    #         stored_data = cache.get(cache_key)
-    #         stored_count = stored_data[f'count_{stored_type}']
-    #         stored_count = stored_count+1
-    #         if stored_count > count:
-    #             return False
-    #         else:
-    #             stored_data[f'count_{stored_type}'] = stored_count
-    #     elif not stored_data :
-    #         stored_data[f'count_{stored_type}'] = 1
-
-    #     # do 
-    #     if stored_type == 'signup_send_email':
-    #         stored_data['verification_code'] =  send_email_verification_code(stored_data['account'], stored_data['email'])
-    #     if stored_type == ''
-    #     if stored_type == 'login_account':
-    #         login_work(request, account, password)
-    #     cache.set(cache_key, stored_data, stored_time) 
-    #     return stored_data[f'count_{stored_type}'] 
-
-    # def add_stored_data(stored_data, add_col, add_data):
-    #     stored_data[add_col] = add_data
 
 
 

@@ -83,6 +83,8 @@ from captcha.image import ImageCaptcha
 # from captcha.urls import reverse
 
 # from .captcha_utils import generate_captcha
+
+from django_ratelimit.decorators import ratelimit
 logger = logging.getLogger(__name__)
 
 import traceback
@@ -166,7 +168,7 @@ def login_work(request, account: str, password: str) -> dict:
         
     return json_data # user
 
-
+@ratelimit(key='ip', rate='2/m', method='POST', block=True)
 @api_view(['POST'])
 @csrf_exempt
 @permission_classes([AllowAny])
@@ -181,7 +183,11 @@ def login_view(request):
     account = request.data.get('account')
     password = request.data.get('password')
     # logic not very ok
-    is_under_limit = CacheManager.store_data_get_count(stored_type='login_account', stored_id=account, stored_data={}, stored_time=300, count=3) # false = over
+    is_under_limit = CacheManager.store_data_get_count(stored_type='login_account', 
+                                                       stored_id=account, 
+                                                       stored_data={}, 
+                                                       stored_time=300, 
+                                                       count_limit=3) # false = over
     if is_under_limit: 
         json_data = login_work(request, account, password)
         # TODO jwt
@@ -206,12 +212,14 @@ def signup_view(request):
     # [] check cache exist?
     
     serializer = AccountSerializer(data=request.data) 
-    # store serializer?
-    # check sql 
     if serializer.is_valid():
         # not store to sql
         # check cache 
-        is_under_limit = CacheManager.store_data_get_count(stored_type='signup_account', stored_id=serializer.data['account'], stored_data=serializer.data, stored_time=300, count=3)
+        is_under_limit = CacheManager.store_data_get_count(stored_type='signup_account', 
+                                                           stored_id=serializer.data['account'], 
+                                                           stored_data=serializer.data, 
+                                                           stored_time=300, 
+                                                           count_limit=3)
         if is_under_limit:
             return Response({'status': 'success'}, status=status.HTTP_200_OK) 
         else:
@@ -233,16 +241,14 @@ def signup_view(request):
 
 #-------------------------------------------------------------------------------#
 
+# @ratelimit(key='ip', rate='2/m', method='POST', block=True)
 @api_view(['POST'])
 @csrf_exempt
 @permission_classes([AllowAny]) #?
 def resend_email_verification_view(request):
-    # if is_active = True 
-    #   not do anything
     try:
         account = request.data.get('account')
-        # CacheManager.store_to_cache(stored_type='login_account', stored_id=account, stored_data={}, stored_time=300)
-        is_under_limit = CacheManager.store_data_get_count(stored_type='signup_account', stored_id=account, stored_data=None, stored_time=300, count=3)
+        is_under_limit = CacheManager.store_data_get_count(stored_type='signup_account', stored_id=account, stored_data={}, stored_time=300, count_limit=3)
         if is_under_limit:
             return Response({'status': 'success'}, status=status.HTTP_200_OK)   
         else:
@@ -253,6 +259,7 @@ def resend_email_verification_view(request):
 
 #-------------------------------------------------------------------------------#
 
+# @ratelimit(key='ip', rate='2/m', method='POST', block=True)
 @api_view(['POST'])
 @csrf_exempt
 @permission_classes([AllowAny]) #?
@@ -268,36 +275,37 @@ def verify_email_verification_view(request):
     account = request.data.get('account')
     user_provided_verification_code = request.data.get('verification_code')
     # TODO 
-    is_under_limit = CacheManager.store_data_get_count(stored_type='signup_account', stored_id=account, stored_data=None, stored_time=300, count=3)
+    is_under_limit = CacheManager.store_data_get_count(stored_type='verify_signup', stored_id=account, stored_data={}, stored_time=300, count_limit=3, verification_code=user_provided_verification_code)
+    if is_under_limit:
     
-    user_data = CacheManager.get_from_cache(stored_type='signup_account', stored_id=account)
-    # return Response(user_data.pop ('verification_code', 'count'), status=status.HTTP_200_OK)
-    stored_verification_code = user_data['verification_code']
+        user_data = CacheManager.get_from_cache(stored_type='signup_account', stored_id=account)
+        # return Response(user_data.pop ('verification_code', 'count'), status=status.HTTP_200_OK)
+        stored_verification_code = user_data['verification_code']
 
-    if user_provided_verification_code == stored_verification_code :
-        # data = get_stored_signup_account(account)
-        user_data.pop('verification_code')
-        user_data.pop('count')
-        serializer = AccountSerializer(data=user_data)
+        if user_provided_verification_code == stored_verification_code :
+            # data = get_stored_signup_account(account)
+            user_data.pop('verification_code')
+            user_data.pop('count')
+            serializer = AccountSerializer(data=user_data)
 
-        if not serializer.is_valid():
-            json_response = {'status': 'error', 'message': serializer.errors}
-            return Response(json_response, status=status.HTTP_404_NOT_FOUND)
-        
-        # = serializer def create(self, validated_data)
-        user = serializer.save() # return object instance 
-        user.set_password(user.password)
-        user.is_active = True
-        group = Group.objects.get(name='Engineers')
-        group.user_set.add(user)
-        user.save()
+            if not serializer.is_valid():
+                json_response = {'status': 'error', 'message': serializer.errors}
+                return Response(json_response, status=status.HTTP_404_NOT_FOUND)
+            
+            # = serializer def create(self, validated_data)
+            user = serializer.save() # return object instance 
+            user.set_password(user.password)
+            user.is_active = True
+            group = Group.objects.get(name='Engineers')
+            group.user_set.add(user)
+            user.save()
 
 
-        # user = AccountModel.objects.get(email=email)
-        # user.is_active = True
-        # user.save()
-        
-        CacheManager.delete_from_cache(stored_type='signup_account', stored_id=serializer.data['account'])
+            # user = AccountModel.objects.get(email=email)
+            # user.is_active = True
+            # user.save()
+            
+            CacheManager.delete_from_cache(stored_type='signup_account', stored_id=serializer.data['account'])
         json_response = {'status': 'success', 'message': 'create'}
         return Response(json_response, status=status.HTTP_200_OK)
     else:
@@ -315,12 +323,18 @@ def verify_email_verification_view(request):
 
 
 #-------------------------------------------------------------------------------#
+# from ratelimit import limits
+# @limits(calls=5, period=60)
+
+
+
 
 @api_view(['POST'])
 @csrf_exempt
 # @authentication_classes([JWTAuthentication])
 @permission_classes([AllowAny])
 def logout_view(request):
+  
     # # jwt: delete
     # token = request.data.get('token')
     # # token = RefreshToken(token)
@@ -330,6 +344,7 @@ def logout_view(request):
 
     json_response = {'status': 'success'}
     return Response(json_response, status=status.HTTP_200_OK)
+
 
 #-------------------------------------------------------------------------------#
 

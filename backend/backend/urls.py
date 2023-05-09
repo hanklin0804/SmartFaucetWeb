@@ -15,9 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/accounts/', include('api.accounts.urls')),
     path('api/devices/', include('api.devices.urls')),
+
 ]
+
+handler403 = 'backend.views.error'
+handler500 = 'backend.views.error'
+handler429 = 'backend.views.error'
