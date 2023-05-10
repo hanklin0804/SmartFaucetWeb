@@ -167,6 +167,8 @@ def verify_captcha_view(request):
 # [] get user data
 # [] generate jwt
 
+from .simplejwt_utils import block_simplejwt, generate_simplejwt
+
 @api_view(['POST'])
 @csrf_exempt
 @permission_classes([AllowAny])
@@ -179,7 +181,8 @@ def login_view(request):
                                          stored_time=300, 
                                          times_limit=3) 
     if json_data: 
-        # TODO jwt
+        user = authenticate(request, account=account, password=password)
+        json_data.update(generate_simplejwt(user))
         return JsonResponse(json_data, status=status.HTTP_200_OK)
     else:
         return JsonResponse({'status': 'error'}, status=status.HTTP_404_NOT_FOUND)
@@ -273,8 +276,8 @@ def verify_email_verification_view(request):
 # [] jwt 
 @api_view(['POST'])
 @csrf_exempt
-# @authentication_classes([JWTAuthentication])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
 def logout_view(request):
   
     # # jwt: delete
@@ -292,14 +295,17 @@ def logout_view(request):
 
 @api_view(['POST'])
 @csrf_exempt
-# @authentication_classes([JWTAuthentication])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
 def jwt_view(request):
-    payload = JWTUtils.verify_jwt(request)
+    # payload = JWTUtils.verify_jwt(request)
+    # refresh_token = request.data.get('refresh_token')
 
+    # token = RefreshToken(refresh_token)
+    # token.verify()
     json_response = {
         'status': 'success',
-        'message': payload
+        'message': 'ok'
     }
     return Response(json_response, status=status.HTTP_200_OK)
    
@@ -348,10 +354,34 @@ def account_information_view(request):
 #-------------------------------------------------------------------------------#
 
 
+def session(request):
+    request.session['key'] = 'key'
+    request.session.get('key', 'default_value')
 
+    return Response()
+
+request.session.save()
 
 # TODO
 # if time not verification >rm data> use redis
 # signup: rewrite email
 # forget password
 # delete: not active account 
+
+
+def get_cookie(request):
+    if 'cookie' in request.COOKIES:
+        json_data = {
+            'cookie': request.COOKIES['cookie']
+        }
+        return Response(json_data)
+    return Response({'status': 'error'})
+
+
+def get_cookie(request):
+    if 'cookie' in request.COOKIES:
+        json_data = {
+            'cookie': request.COOKIES['cookie']
+        }
+        return Response(json_data)
+    return Response({'status': 'error'})

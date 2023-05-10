@@ -36,6 +36,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = 'accounts.AccountModel'
+#-------------------------------------------------------------------------------#
+# session
+SESSION_COOKIE_SECURE = True # https only # default=False
+SESSION_COOKIE_HTTPONLY = True # http only jsX # default=False
+SESSION_COOKIE_AGE = 60*5 # day
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True # default=False
 
 #-------------------------------------------------------------------------------#
 # rest framework
@@ -45,7 +51,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'rest_framework_simplejwt.authentication.JWTAuthentication', 
+        'rest_framework_simplejwt.authentication.JWTAuthentication', 
 
     ],
 }
@@ -106,7 +112,7 @@ INSTALLED_APPS = [
 #-------------------------------------------------------------------------------#
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware', #
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
