@@ -85,9 +85,18 @@ from captcha.image import ImageCaptcha
 # from .captcha_utils import generate_captcha
 
 from django_ratelimit.decorators import ratelimit
+
+
+from .work_utils import WorkManager
+
 logger = logging.getLogger(__name__)
 
 import traceback
+
+
+# from ratelimit import limits
+# @limits(calls=5, period=60)
+# @ratelimit(key='ip', rate='2/m', method='POST', block=True)
 
 @api_view(['POST'])
 @csrf_exempt
@@ -150,107 +159,73 @@ def verify_captcha_view(request):
     except Exception as ex:
         return JsonResponse({'status': 'error'}, status=status.HTTP_404_NOT_FOUND)
 #-------------------------------------------------------------------------------#
+# ok
+# TODO
+# [x] get account, password
+# [x] check times
+# [x] check user
+# [] get user data
+# [] generate jwt
 
-def login_work(request, account: str, password: str) -> dict:
-    user = authenticate(account=account, password=password)
-    if user:
-        login(request, user)
-        json_data = {'status': 'success'}
-    else:
-        # error
-        if AccountModel.objects.filter(account=account).exists():
-            # password error
-            json_data = {'status': 'error'} #, 'message': 'password'}
-            # add count
-        else:
-            # other error
-            json_data = {'status': 'error'} #, 'message': 'empty or not exist'}
-        
-    return json_data # user
-
-@ratelimit(key='ip', rate='2/m', method='POST', block=True)
 @api_view(['POST'])
 @csrf_exempt
 @permission_classes([AllowAny])
 def login_view(request):
-    # TODO
-    # [x] read account, password
-    # [x] read login count
-    # [x] check account, password = auth function
-    # [x] login = login function
-    # [] get user data
-    # [] generate jwt
     account = request.data.get('account')
     password = request.data.get('password')
-    # logic not very ok
-    is_under_limit = CacheManager.store_data_get_count(stored_type='login_account', 
-                                                       stored_id=account, 
-                                                       stored_data={}, 
-                                                       stored_time=300, 
-                                                       count_limit=3) # false = over
-    if is_under_limit: 
-        json_data = login_work(request, account, password)
+    json_data = WorkManager.account_work(type='login', 
+                                         account=account, 
+                                         data=request,
+                                         stored_time=300, 
+                                         times_limit=3) 
+    if json_data: 
         # TODO jwt
         return JsonResponse(json_data, status=status.HTTP_200_OK)
     else:
         return JsonResponse({'status': 'error'}, status=status.HTTP_404_NOT_FOUND)
   
 #-------------------------------------------------------------------------------#
-
-
-def signup_work(request, serializer):
-    pass 
+# 
+# TODO
+# [x] get data 
+# [x] get serializer
+# [x] check sql > serializer
+# [x] check times & cache
+# [x] send email
 
 @api_view(['POST'])
 @csrf_exempt
 @permission_classes([AllowAny])
 def signup_view(request):
-    # TODO
-    # [x] get data 
-    # [x?] get serializer
-    # [x] check sql exist? serializer
-    # [] check cache exist?
-    
     serializer = AccountSerializer(data=request.data) 
     if serializer.is_valid():
         # not store to sql
         # check cache 
-        is_under_limit = CacheManager.store_data_get_count(stored_type='signup_account', 
-                                                           stored_id=serializer.data['account'], 
-                                                           stored_data=serializer.data, 
-                                                           stored_time=300, 
-                                                           count_limit=3)
-        if is_under_limit:
+        json_data = WorkManager.account_work(type='signup_userdata', 
+                                             account=serializer.data['account'], 
+                                             stored_data=serializer.data, 
+                                             stored_time=300, 
+                                             times_limit=1)
+        if json_data:
             return Response({'status': 'success'}, status=status.HTTP_200_OK) 
         else:
-            return Response({'status': 'error_count'}, status=status.HTTP_404_NOT_FOUND)  
+            return Response({'status': 'error'}, status=status.HTTP_404_NOT_FOUND)  
     else:
         return Response({'status': 'error'}, status=status.HTTP_404_NOT_FOUND)  
 
-        # user = serializer.save() # return object instance 
-        # user.set_password(user.password)
-        # user.is_active = False
-        # group = Group.objects.get(name='Engineers')
-        # group.uer_set.add(user)
-        # user.save()
-
-        # send_email_verification_code(serializer.data['account'], serializer.data['email'])
-    
-
-
-
 #-------------------------------------------------------------------------------#
-
-# @ratelimit(key='ip', rate='2/m', method='POST', block=True)
 @api_view(['POST'])
 @csrf_exempt
 @permission_classes([AllowAny]) #?
 def resend_email_verification_view(request):
     try:
         account = request.data.get('account')
-        is_under_limit = CacheManager.store_data_get_count(stored_type='signup_account', stored_id=account, stored_data={}, stored_time=300, count_limit=3)
-        if is_under_limit:
-            return Response({'status': 'success'}, status=status.HTTP_200_OK)   
+        json_data = WorkManager.account_work(type='signup_userdata', 
+                                             account=account, 
+                                             stored_time=300, 
+                                             times_limit=3)
+        if json_data:
+            return Response(json_data, status=status.HTTP_200_OK)   
         else:
             return Response({'status': 'error_count'}, status=status.HTTP_404_NOT_FOUND)  
     except:
@@ -258,59 +233,29 @@ def resend_email_verification_view(request):
 
 
 #-------------------------------------------------------------------------------#
+# TODO
+# [] count
+# [] verify
+# [] signup setting & save
+# [] setting & save
+# [] delete? 
 
-# @ratelimit(key='ip', rate='2/m', method='POST', block=True)
 @api_view(['POST'])
 @csrf_exempt
 @permission_classes([AllowAny]) #?
 def verify_email_verification_view(request):
-    # TODO
-    # [] count
-    # [] verify
-    # [] signup setting & save
-    # [] setting & save
-    # [] delete? 
-
-
     account = request.data.get('account')
     user_provided_verification_code = request.data.get('verification_code')
-    # TODO 
-    is_under_limit = CacheManager.store_data_get_count(stored_type='verify_signup', stored_id=account, stored_data={}, stored_time=300, count_limit=3, verification_code=user_provided_verification_code)
-    if is_under_limit:
-    
-        user_data = CacheManager.get_from_cache(stored_type='signup_account', stored_id=account)
-        # return Response(user_data.pop ('verification_code', 'count'), status=status.HTTP_200_OK)
-        stored_verification_code = user_data['verification_code']
-
-        if user_provided_verification_code == stored_verification_code :
-            # data = get_stored_signup_account(account)
-            user_data.pop('verification_code')
-            user_data.pop('count')
-            serializer = AccountSerializer(data=user_data)
-
-            if not serializer.is_valid():
-                json_response = {'status': 'error', 'message': serializer.errors}
-                return Response(json_response, status=status.HTTP_404_NOT_FOUND)
-            
-            # = serializer def create(self, validated_data)
-            user = serializer.save() # return object instance 
-            user.set_password(user.password)
-            user.is_active = True
-            group = Group.objects.get(name='Engineers')
-            group.user_set.add(user)
-            user.save()
-
-
-            # user = AccountModel.objects.get(email=email)
-            # user.is_active = True
-            # user.save()
-            
-            CacheManager.delete_from_cache(stored_type='signup_account', stored_id=serializer.data['account'])
-        json_response = {'status': 'success', 'message': 'create'}
-        return Response(json_response, status=status.HTTP_200_OK)
+    json_data = WorkManager.account_work(type='verify_signup', 
+                                         account=account, 
+                                         data=user_provided_verification_code,
+                                         stored_time=300, 
+                                         times_limit=3
+                                         )
+    if json_data:
+        return Response(json_data, status=status.HTTP_200_OK)
     else:
-        json_response = {'status': 'error', 'message': 'verification code error'}
-        return Response(json_response, status=status.HTTP_404_NOT_FOUND)
+        return Response({'status': 'error'}, status=status.HTTP_404_NOT_FOUND)
     
     # except Exception as ex:
     #     template = "An exception of type {0} occurred. Arguments:{1!r}"
@@ -323,12 +268,9 @@ def verify_email_verification_view(request):
 
 
 #-------------------------------------------------------------------------------#
-# from ratelimit import limits
-# @limits(calls=5, period=60)
-
-
-
-
+# TODO 
+# [] logout
+# [] jwt 
 @api_view(['POST'])
 @csrf_exempt
 # @authentication_classes([JWTAuthentication])
