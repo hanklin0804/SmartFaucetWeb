@@ -1,0 +1,101 @@
+[
+    {
+        "model": "devices.tapmodel",
+        "pk": 1,
+        "fields": {
+            "rpi_id": "1",
+            "device_name": "name1",
+            "device_model": "test",
+            "device_sn": "test",
+            "device_id": "xxx.xxx.xxx.xxx",
+            "fw_version": "test",
+            "acc_amount": "test",
+            "acc_feed_count": "test",
+            "acc_feed_time": "",
+            "leak_info": "",
+
+            "ir_duty": 65535,
+            "ir_range": 600,
+            "self_preserver": 65535,
+            "sen_feed": 65535,
+            "sen_stop": 65535,
+            "power_save": 65535,
+            "sol_time": 65535,
+            "feed_time_on1": -1,
+            "feed_time_on2": -1,
+            "feed_time_on3": -1,
+            "feed_time_off1": 2400,
+            "feed_time_off2": 2400,
+            "feed_time_off3": 2400,
+            "amount_unit": 1,
+            "feed_limit": 4294967295,
+            "amount_limit": 65535,
+
+            "batt_warn": "15",
+            "batt_fail": "-1",
+            "leak_det_period": "65535",
+            "leak_det_keep": "-1",
+            "leak_det_ontime": "2400",
+            "leak_det_offtime": "-1",
+            "report_auto": "100.0.0.100",
+            "update_auto": "1"
+            
+        }
+    },
+    {
+        "model": "devices.tapmodel",
+        "pk": 2,
+        "fields": {
+            "rpi_id": "1",
+            "device_name": "name2",
+            "device_model": "test",
+            "device_sn": "test",
+            "device_id": "xxx.xxx.xxx.xxx",
+            "fw_version": "test",
+            "acc_amount": "test",
+            "acc_feed_count": "test",
+            "acc_feed_time": "test",
+            "leak_info": "test",
+
+            "ir_duty": 65535,
+            "ir_range": 600,
+            "self_preserver": 65535,
+            "sen_feed": 65535,
+            "sen_stop": 65535,
+            "power_save": 65535,
+            "sol_time": 65535,
+            "feed_time_on1": "-1",
+            "feed_time_on2": "-1",
+            "feed_time_on3": "-1",
+            "feed_time_off1": "-1",
+            "feed_time_off2": -1,
+            "feed_time_off3": -1,
+
+            "batt_warn": -1,
+            "batt_fail": -1,
+            "leak_det_period": -1,
+            "leak_det_keep": -1,
+            "leak_det_ontime": -1,
+            "leak_det_offtime": -1
+            
+
+            
+        }
+    },
+    {
+        "model": "devices.tapmodel",
+        "pk": 3,
+        "fields": {
+            "rpi_id": "2",
+            "device_name": "name3",
+            "device_model": "test",
+            "device_sn": "test",
+            "device_id": "xxx.xxx.xxx.xxx",
+            "fw_version": "test",
+            "acc_amount": "test",
+            "acc_feed_count": "test",
+            "acc_feed_time": "test",
+            "leak_info": "test"
+        }
+    }
+]

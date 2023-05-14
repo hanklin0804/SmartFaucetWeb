@@ -1,0 +1,52 @@
+            "batt_warn": "",
+            "batt_fail": "",
+            "leak_det_period": "",
+            "leak_det_keep": "",
+            "leak_det_ontime": "",
+            "leak_det_offtime": "",
+            "report_auto": "",
+            "update_auto": ""
+
+,
+{
+    "model": "devices.tapmodel",
+    "pk": 2,
+    "fields": {
+        "rpi_id": "1",
+        "device_name": "name2",
+        "device_model": "test",
+        "device_sn": "test",
+        "device_id": "xxx.xxx.xxx.xxx",
+        "fw_version": "test",
+        "acc_amoount": "test",
+        "acc_feed_count": "test",
+        "acc_feed_time": "test",
+        "leak_info": "test",
+        "location": "",
+        "batt_warn": -1,
+        "batt_fail": -1,
+        "leak_det_period": -1,
+        "leak_det_keep": -1,
+        "leak_det_ontime": -1,
+        "leak_det_offtime": -1,
+        "report_auto": -1,
+        "update_auto": -1
+    }
+},
+{
+    "model": "devices.tapmodel",
+    "pk": 3,
+    "fields": {
+        "rpi_id": "2",
+        "device_name": "name3",
+        "device_model": "test",
+        "device_sn": "test",
+        "device_id": "xxx.xxx.xxx.xxx",
+        "fw_version": "test",
+        "acc_amoount": "test",
+        "acc_feed_count": "test",
+        "acc_feed_time": "test",
+        "leak_info": "test",
+        "location": ""
+    }
+}

@@ -1,0 +1,27 @@
+[
+    {
+        "model": "devices.rpimodel",
+        "pk": 1,
+        "fields": {
+            "rpi_ip": "100.100.100.1",
+            "rpi_name": "rpi_1",
+            "rpi_location": ""
+        }
+    },
+    {
+        "model": "devices.rpimodel",
+        "pk": 2,
+        "fields": {
+            "rpi_ip": "100.100.100.2",
+            "rpi_name": "rpi_2",
+            "rpi_location": ""
+        }
+    },
+    {
+        "model": "devices.rpimodel",
+        "pk": 3,
+        "fields": {
+            "rpi_ip": "100.100.100.3"
+        }
+    }
+]

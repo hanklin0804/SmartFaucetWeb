@@ -1,7 +1,13 @@
-from django.urls import path
+from django.urls import path, include
 from api.devices import views
+from rest_framework import routers
+
+
+router = routers.DefaultRouter()
+router.register(r'rpi/tap', views.TapViewSet)
+router.register(r'rpi', views.RpiViewSet)
+
 
 urlpatterns = [
-    path('get/', views.get_getdevice, name='get'),
-   
+    path('', include(router.urls))
 ]

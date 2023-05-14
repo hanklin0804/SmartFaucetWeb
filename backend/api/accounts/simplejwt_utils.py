@@ -10,8 +10,12 @@ def generate_simplejwt(user):
     return json_data
 
 
-def block_simplejwt(refresh_token):
-    token = RefreshToken(refresh_token)
-    token.blacklist()
-    return 
+def black_simplejwt(refresh_token):
+    try:
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        # token.check_blacklist()
+        return 1
+    except:
+        return 0
 

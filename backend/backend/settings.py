@@ -70,10 +70,15 @@ CAPTCHA_IMAGE_SIZE = (120, 60)  # 設置 captcha 圖像的大小
 #-------------------------------------------------------------------------------#
 # jwt simple
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'BLACKLIST_AFTER_ROTATION': True,
-    'ROTATE_REFRESH_TOKENS': True,
+    
+    'ROTATE_REFRESH_TOKENS': False,
+    # 'BLACKLIST_AFTER_ROTATION': True,
+
+    # "UPDATE_LAST_LOGIN": False,
+    'ALGORITHM': 'HS256',
+    
 } 
 
 # JWT_AUTH = {

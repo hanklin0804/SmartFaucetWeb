@@ -20,20 +20,29 @@ logger = logging.getLogger(__name__)
 
 @receiver(post_migrate) # run after migrate 
 def create_groups(sender, **kwargs):
-    group_name = 'Supervisiors'
+    group_name = 'Managers'
     if not Group.objects.filter(name=group_name).exists():
         group = Group.objects.create(name=group_name)
-        permissions = Permission.objects.create(
-            codename = 'can_manage',
-            content_type=ContentType.objects.get_for_model(AccountModel))
-        group.permissions.add(permissions)
+
+        permissions = Permission.objects.filter(codename__in=['view', 'delete', 'create'])
+        group.permissions.set(permissions)
+
+        # permissions = Permission.objects.create(codename = 'can_manage',content_type=ContentType.objects.get_for_model(AccountModel))
+        # group.permissions.add(permissions)
         logger.info(f'Groups {group_name} created')
     else:
         logger.info(f'Group {group_name} already exists')
 
     group_name = 'Engineers'
     if not Group.objects.filter(name=group_name).exists():
-        Group.objects.create(name=group_name)
+        group = Group.objects.create(name=group_name)
+        
+        # permissions = Permission.objects.filter(codename__in=['view'])
+        # group.permissions.set(permissions)
+
+        permissions = Permission.objects.create(codename = 'view',content_type=ContentType.objects.get_for_model(AccountModel))
+        group.permissions.add(permissions)
+
         logger.info(f'Groups {group_name} created')
     else:
         logger.info(f'Group {group_name} already exists')
@@ -55,7 +64,7 @@ def create_default_engineers(sender, **kwargs):
 
 @receiver(post_migrate)
 def create_default_managers(sender, **kwargs):
-    group = Group.objects.get(name='Supervisiors')
+    group = Group.objects.get(name='Managers')
     for i in range(1, 11):
         data = {"account": f"manager{i}", "email": f"manager{i}@gmail.com", "name": f"manager{i}", "password": "1234", "phone": "1234"}
         serializer = AccountSerializer(data=data)

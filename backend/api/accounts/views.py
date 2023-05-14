@@ -57,6 +57,15 @@ from .cache_utils import CacheManager
 
 
 #-------------------------------------------------------------------------------#
+# rest_framework
+from api.accounts.models import AccountModel
+from api.accounts.serializers import AccountSerializer
+from rest_framework import viewsets
+
+@permission_classes([AllowAny])
+class AccountViewSet(viewsets.ModelViewSet):
+   queryset = AccountModel.objects.all()
+   serializer_class = AccountSerializer 
 
 
 #-------------------------------------------------------------------------------#
@@ -167,7 +176,7 @@ def verify_captcha_view(request):
 # [] get user data
 # [] generate jwt
 
-from .simplejwt_utils import block_simplejwt, generate_simplejwt
+from .simplejwt_utils import black_simplejwt, generate_simplejwt
 
 @api_view(['POST'])
 @csrf_exempt
@@ -181,8 +190,8 @@ def login_view(request):
                                          stored_time=300, 
                                          times_limit=3) 
     if json_data: 
-        user = authenticate(request, account=account, password=password)
-        json_data.update(generate_simplejwt(user))
+        # user = authenticate(request, account=account, password=password)
+        # json_data.update(generate_simplejwt(user))
         return JsonResponse(json_data, status=status.HTTP_200_OK)
     else:
         return JsonResponse({'status': 'error'}, status=status.HTTP_404_NOT_FOUND)
@@ -281,9 +290,12 @@ def verify_email_verification_view(request):
 def logout_view(request):
   
     # # jwt: delete
-    # token = request.data.get('token')
+    refresh_token = request.data.get('refresh_token')
+
     # # token = RefreshToken(token)
     # token.blacklist()
+
+    # test = black_simplejwt(refresh_token)
 
     logout(request) # clean auth session data
 
@@ -354,34 +366,36 @@ def account_information_view(request):
 #-------------------------------------------------------------------------------#
 
 
-def session(request):
-    request.session['key'] = 'key'
-    request.session.get('key', 'default_value')
+# def session(request):
+#     request.session['key'] = 'key'
+#     request.session.get('key', 'default_value')
 
-    return Response()
+#     return Response()
 
-request.session.save()
+# request.session.save()
+
+
+
+# def get_cookie(request):
+#     if 'cookie' in request.COOKIES:
+#         json_data = {
+#             'cookie': request.COOKIES['cookie']
+#         }
+#         return Response(json_data)
+#     return Response({'status': 'error'})
+
+
+# def get_cookie(request):
+#     if 'cookie' in request.COOKIES:
+#         json_data = {
+#             'cookie': request.COOKIES['cookie']
+#         }
+#         return Response(json_data)
+#     return Response({'status': 'error'})
+
 
 # TODO
 # if time not verification >rm data> use redis
 # signup: rewrite email
 # forget password
 # delete: not active account 
-
-
-def get_cookie(request):
-    if 'cookie' in request.COOKIES:
-        json_data = {
-            'cookie': request.COOKIES['cookie']
-        }
-        return Response(json_data)
-    return Response({'status': 'error'})
-
-
-def get_cookie(request):
-    if 'cookie' in request.COOKIES:
-        json_data = {
-            'cookie': request.COOKIES['cookie']
-        }
-        return Response(json_data)
-    return Response({'status': 'error'})

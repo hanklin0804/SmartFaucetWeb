@@ -16,6 +16,7 @@ pyjwt = "*"
 captcha = "*"
 ratelimit = "*"
 django-ratelimit = "*"
+pipfile = "*"
 
 [dev-packages]
 
