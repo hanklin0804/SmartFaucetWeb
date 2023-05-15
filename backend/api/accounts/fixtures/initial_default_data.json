@@ -2,7 +2,8 @@
     {
         "model": "accounts.accountmodel", 
         "pk": 1,
-        "fields":{
+        "fields":
+        {
             "account": "user0", 
             "email": "user0@gmail.com", 
             "name": "user0", 

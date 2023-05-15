@@ -13,7 +13,7 @@ class RpiModel(models.Model):
 
 
 class TapModel(models.Model):
-    rpi = models.ForeignKey(RpiModel, on_delete=models.CASCADE)
+    rpi = models.ForeignKey(RpiModel,related_name='taps', on_delete=models.CASCADE)
     device_name = models.CharField(max_length=30)
     device_model = models.CharField(max_length=30)
     device_sn = models.CharField(max_length=30)
