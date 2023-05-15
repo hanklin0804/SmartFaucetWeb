@@ -1,29 +1,35 @@
 #!/bin/bash
 
-# install java se 17
+# 安裝 Java SE 17
 sudo apt update
 sudo apt install openjdk-17-jdk -y
 java -version
 
-# add java path to environment variables
+# 把 Java 路徑加入環境變數
 JAVA_PATH=$(dirname $(readlink -f $(which java)))
 echo "Java installed in $JAVA_PATH"
 echo "export PATH=\$PATH:$JAVA_PATH" >> ~/.bashrc
 
-# load the new environment variables
+# 讀取新的環境變數
 source ~/.bashrc
 echo "Java path added to PATH variable."
 
-# 創建專案目錄
+# 建立專案目錄
 mkdir mqtt_client_project
 cd mqtt_client_project
 
-# 下載並安裝 MQTT 客戶端庫
-wget https://repo1.maven.org/maven2/org/eclipse/paho/org.eclipse.paho.client.mqttv3/1.2.5/org.eclipse.paho.client.mqttv3-1.2.5.jar
+# 建立存放源碼檔案和類檔案的目錄
+mkdir src  # java檔
+mkdir bin  # byte code 檔
+mkdir lib  # 建立存放第三方庫的目錄
+
+
+# 下載並安裝 MQTT 客戶端庫，並將其放入 lib 目錄
+wget -P lib https://repo1.maven.org/maven2/org/eclipse/paho/org.eclipse.paho.client.mqttv3/1.2.5/org.eclipse.paho.client.mqttv3-1.2.5.jar
 
 
 # 創建 MqttClientDemo.java 源文件
-cat <<EOF > MqttClientDemo.java
+cat <<EOF > src/MqttClientDemo.java
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -93,7 +99,7 @@ public class MqttClientDemo {
 EOF
 
 # 創建 FaucetDataGenerator.java 源文件
-cat <<EOF > FaucetDataGenerator.java
+cat <<EOF > src/FaucetDataGenerator.java
 import java.util.*;
 
 class Faucet {
@@ -155,10 +161,9 @@ public class FaucetDataGenerator {
 }
 EOF
 
-# 編譯 Java 源文件
-# javac -cp ./org.eclipse.paho.client.mqttv3-1.2.5.jar MqttClientDemo.java
-javac -cp .:org.eclipse.paho.client.mqttv3-1.2.5.jar *.java
+
+# 編譯 Java 源文件，將結果放入 bin 目錄
+javac -cp .:lib/*:src/ src/*.java -d bin
 
 # 運行應用程序
-# java -cp .:./org.eclipse.paho.client.mqttv3-1.2.5.jar MqttClientDemo
-java -cp .:org.eclipse.paho.client.mqttv3-1.2.5.jar MqttClientDemo
+java -cp .:bin/:lib/* MqttClientDemo
