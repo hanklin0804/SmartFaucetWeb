@@ -15,8 +15,8 @@ source ~/.bashrc
 echo "Java path added to PATH variable."
 
 # 建立專案目錄
-mkdir mqtt_client_project
-cd mqtt_client_project
+mkdir mqtt_client_project2
+cd mqtt_client_project2
 
 # 建立存放源碼檔案和類檔案的目錄
 mkdir src  # java檔
@@ -30,17 +30,16 @@ wget -P lib https://repo1.maven.org/maven2/org/eclipse/paho/org.eclipse.paho.cli
 
 # 創建 MqttClientDemo.java 源文件
 cat <<EOF > src/MqttClientDemo.java
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class MqttClientDemo {
+    private static final int MAX_RECONNECT_ATTEMPTS = 10;
+    private static final int INITIAL_RECONNECT_DELAY_MS = 1000;
+    private static final int MAX_RECONNECT_DELAY_MS = 60000;
+
     public static void main(String[] args) {
         String brokerUrl = "tcp://192.53.162.144:1883";
         String clientId = "JavaMqttClient";
@@ -51,9 +50,38 @@ public class MqttClientDemo {
             options.setCleanSession(true);
 
             client.setCallback(new MqttCallback() {
+                private int reconnectAttempts = 0;
+                private int reconnectDelay = INITIAL_RECONNECT_DELAY_MS;
+
                 @Override
                 public void connectionLost(Throwable cause) {
                     System.out.println("Connection lost!");
+                    // Attempt to reconnect with exponential backoff
+                    while (!client.isConnected() && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                        try {
+                            System.out.println("Attempting to reconnect...");
+                            client.connect(options);
+                            System.out.println("Reconnected!");
+                            reconnectAttempts = 0;
+                            reconnectDelay = INITIAL_RECONNECT_DELAY_MS;
+                        } catch (MqttException e) {
+                            reconnectAttempts++;
+                            System.out.println("Reconnection attempt " + reconnectAttempts + " failed. Trying again in " + reconnectDelay/1000 + " seconds...");
+                            try {
+                                Thread.sleep(reconnectDelay);
+                            } catch (InterruptedException ie) {
+                                ie.printStackTrace();
+                            }
+                            // Increase delay for next try, but limit to max delay
+                            reconnectDelay *= 2;
+                            if (reconnectDelay > MAX_RECONNECT_DELAY_MS) {
+                                reconnectDelay = MAX_RECONNECT_DELAY_MS;
+                            }
+                        }
+                    }
+                    if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+                        System.out.println("Unable to reconnect after " + MAX_RECONNECT_ATTEMPTS + " attempts. Giving up.");
+                    }
                 }
 
                 @Override
@@ -68,7 +96,6 @@ public class MqttClientDemo {
 
             client.connect(options);
 
-            // 訂閱所有水龍頭的主題
             for (Faucet faucet : FaucetDataGenerator.faucets) {
                 client.subscribe("CompanyID/BuildingID/#");
             }
@@ -78,9 +105,23 @@ public class MqttClientDemo {
                 @Override
                 public void run() {
                     for (Faucet faucet : FaucetDataGenerator.faucets) {
-                        faucet.update();
-                        String data = faucet.getInfo();
+                        try {
+                            faucet.update();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            continue;
+                        }
+
+                        String data;
+                        try {
+                            data = faucet.getInfo();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            continue;
+                        }
+
                         MqttMessage message = new MqttMessage(data.getBytes());
+
                         try {
                             client.publish(faucet.getTopic(), message);
                             System.out.println("Message sent: " + data);
@@ -100,20 +141,24 @@ EOF
 
 # 創建 FaucetDataGenerator.java 源文件
 cat <<EOF > src/FaucetDataGenerator.java
+// 匯入 Java 內建的套件
 import java.util.*;
 
+// 定義 Faucet 類別來模擬水龍頭的資訊
 class Faucet {
-    String deviceName;
-    String deviceModel;
-    String deviceSN;
-    String deviceID;
-    String fwVersion;
-    double accAmount;
-    int accFeedCount;
-    double accFeedTime;
-    String leakInfo;
-    String topic;
+    // 定義水龍頭的各項屬性
+    String deviceName; // 設備名稱
+    String deviceModel; // 設備型號
+    String deviceSN; // 設備序號
+    String deviceID; // 設備 ID
+    String fwVersion; // 韌體版本
+    double accAmount; // 累計的水量
+    int accFeedCount; // 累計的供水次數
+    double accFeedTime; // 累計的供水時間
+    String leakInfo; // 洩漏信息
+    String topic; // MQTT 主題
 
+    // Faucet 的建構子，用於初始化物件
     Faucet(String deviceName, String deviceModel, String deviceSN, String deviceID, String fwVersion, String topic) {
         this.deviceName = deviceName;
         this.deviceModel = deviceModel;
@@ -123,19 +168,23 @@ class Faucet {
         this.topic = topic;
     }
 
+    // 更新水龍頭的資訊
     void update() {
         Random rand = new Random();
 
-        this.accAmount = rand.nextDouble() * 1000;  // Generate random water consumption between 0 and 1000
-        this.accFeedCount = rand.nextInt(100);  // Generate random feed count between 0 and 100
-        this.accFeedTime = rand.nextDouble() * 100;  // Generate random feed time between 0 and 100
-        this.leakInfo = rand.nextBoolean() ? "Leak Detected" : "No Leak";  // Generate random leak info
+        // 生成隨機的累計水量、供水次數、供水時間和洩漏信息
+        this.accAmount = rand.nextDouble() * 1000;
+        this.accFeedCount = rand.nextInt(100);
+        this.accFeedTime = rand.nextDouble() * 100;
+        this.leakInfo = rand.nextBoolean() ? "Leak Detected" : "No Leak";
     }
 
+    // 獲取 MQTT 主題
     public String getTopic() {
         return this.topic;
     }
 
+    // 獲取水龍頭的資訊
     public String getInfo() {
         return "Device Name: " + this.deviceName + "\n" +
                 "Device Model: " + this.deviceModel + "\n" +
@@ -149,14 +198,18 @@ class Faucet {
     }
 }
 
+// 定義 FaucetDataGenerator 類別，用於生成和管理多個 Faucet 物件
 public class FaucetDataGenerator {
+    // 定義通用和特殊的 MQTT 主題
     static String commonTopic = "CompanyID/BuildingID/FloorID/Restroom";
     static String specialTopic = "CompanyID/BuildingID/FloorID/Kitchen";
 
+    // 創建三個水龍頭的實例
     static Faucet faucet1 = new Faucet("Faucet1", "Model1", "SN1", "ID1", "Version1", commonTopic);
     static Faucet faucet2 = new Faucet("Faucet2", "Model2", "SN2", "ID2", "Version2", commonTopic);
     static Faucet faucet3 = new Faucet("Faucet3", "Model3", "SN3", "ID3", "Version3", specialTopic);
 
+    // 將三個水龍頭實例放入一個列表中，方便管理和操作
     public static List<Faucet> faucets = Arrays.asList(faucet1, faucet2, faucet3);
 }
 EOF
