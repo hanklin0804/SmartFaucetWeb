@@ -88,6 +88,7 @@ public class MqttClientDemo {
                         }
 
                         MqttMessage message = new MqttMessage(data.getBytes());
+                        message.setQos(0);  // Set QoS to 0
 
                         try {
                             client[0].publish(faucet.getTopic(), message);
@@ -120,3 +121,4 @@ public class MqttClientDemo {
         }
     }
 }
+
