@@ -27,6 +27,4 @@ docker run -itd --name mysql -e MYSQL_ROOT_PASSWORD=$Mysql_PASSWORD -p 3306:3306
 # ----------------MQTT-----------------
 # broker
 docker rm -f broker
-docker run -itd --name broker -p 1883:1883 -p 18083:18083 -e EMQX_NAME=emqx -e EMQX_LOG__LEVEL=debug -e EMQX_LOADED_PLUGINS=emqx_recon,emqx_retainer,emqx_management,emqx_dashboard -e EMQX_CONNECTION_TIMEOUT=10000 --restart unless-stopped emqx/emqx
-
-# client
+docker run -itd --name broker -p 1883:1883 -p 18083:18083 -e EMQX_NAME=emqx -e EMQX_LOG__LEVEL=debug -e EMQX_LOADED_PLUGINS=emqx_recon,emqx_retainer,emqx_management,emqx_dashboard  emqx/emqx
