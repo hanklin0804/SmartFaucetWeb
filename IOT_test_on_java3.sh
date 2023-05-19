@@ -15,8 +15,8 @@ source ~/.bashrc
 echo "Java path added to PATH variable."
 
 # 建立專案目錄
-mkdir mqtt_client_project
-cd mqtt_client_project
+mkdir mqtt_client_project2
+cd mqtt_client_project2
 
 # 建立存放源碼檔案和類檔案的目錄
 mkdir src  # 存放 .java 檔
@@ -267,6 +267,7 @@ import java.util.*;
 // 定義 Faucet 類別來模擬水龍頭的資訊
 class Faucet {
     // 定義水龍頭的各項屬性
+    String SocIP; // 板子的IP
     String deviceName; // 設備名稱
     String deviceModel; // 設備型號
     String deviceSN; // 設備序號
@@ -279,7 +280,8 @@ class Faucet {
     String topic; // MQTT 主題
 
     // Faucet 的建構子，用於初始化物件
-    Faucet(String deviceName, String deviceModel, String deviceSN, String deviceID, String fwVersion, String topic) {
+    Faucet(String SocIP, String deviceName, String deviceModel, String deviceSN, String deviceID, String fwVersion, String topic) {
+        this.SocIP = SocIP;
         this.deviceName = deviceName;
         this.deviceModel = deviceModel;
         this.deviceSN = deviceSN;
@@ -306,7 +308,8 @@ class Faucet {
 
     // 獲取水龍頭的資訊
     public String getInfo() {
-        return "Device Name: " + this.deviceName + "\n" +
+        return  "Soc IP: " + this.SocIP + "\n" +
+                "Device Name: " + this.deviceName + "\n" +
                 "Device Model: " + this.deviceModel + "\n" +
                 "Device SN: " + this.deviceSN + "\n" +
                 "Device ID: " + this.deviceID + "\n" +
@@ -321,13 +324,14 @@ class Faucet {
 // 定義 FaucetDataGenerator 類別，用於生成和管理多個 Faucet 物件
 public class FaucetDataGenerator {
     // 定義通用和特殊的 MQTT 主題
+    static String SocIP = "140.118.122.123";
     static String commonTopic = "CompanyID/BuildingID/FloorID/Restroom";
     static String specialTopic = "CompanyID/BuildingID/FloorID/Kitchen";
 
     // 創建三個水龍頭的實例
-    static Faucet faucet1 = new Faucet("Faucet1", "Model1", "SN1", "ID1", "Version1", commonTopic);
-    static Faucet faucet2 = new Faucet("Faucet2", "Model2", "SN2", "ID2", "Version2", commonTopic);
-    static Faucet faucet3 = new Faucet("Faucet3", "Model3", "SN3", "ID3", "Version3", specialTopic);
+    static Faucet faucet1 = new Faucet(SocIP,"Faucet1", "Model1", "SN1", "ID1", "Version1", commonTopic);
+    static Faucet faucet2 = new Faucet(SocIP,"Faucet2", "Model2", "SN2", "ID2", "Version2", commonTopic);
+    static Faucet faucet3 = new Faucet(SocIP,"Faucet3", "Model3", "SN3", "ID3", "Version3", specialTopic);
 
     // 將三個水龍頭實例放入一個列表中，方便管理和操作
     public static List<Faucet> faucets = Arrays.asList(faucet1, faucet2, faucet3);
