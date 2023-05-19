@@ -9,9 +9,9 @@
             "device_sn": "test",
             "device_id": "xxx.xxx.xxx.xxx",
             "fw_version": "test",
-            "acc_amount": "test",
-            "acc_feed_count": "test",
-            "acc_feed_time": "",
+            "acc_amount": 1000,
+            "acc_feed_count": 100,
+            "acc_feed_time": 5,
             "leak_info": "",
 
             "ir_duty": 65535,
@@ -52,9 +52,6 @@
             "device_sn": "test",
             "device_id": "xxx.xxx.xxx.xxx",
             "fw_version": "test",
-            "acc_amount": "test",
-            "acc_feed_count": "test",
-            "acc_feed_time": "test",
             "leak_info": "test",
 
             "ir_duty": 65535,
@@ -92,9 +89,6 @@
             "device_sn": "test",
             "device_id": "xxx.xxx.xxx.xxx",
             "fw_version": "test",
-            "acc_amount": "test",
-            "acc_feed_count": "test",
-            "acc_feed_time": "test",
             "leak_info": "test"
         }
     }

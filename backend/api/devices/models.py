@@ -19,13 +19,25 @@ class TapModel(models.Model):
     device_sn = models.CharField(max_length=30)
     device_id = models.CharField(max_length=30)
     fw_version = models.CharField(max_length=30)
-    acc_amount = models.CharField(max_length=30)
-    acc_feed_count = models.CharField(max_length=30)
-    acc_feed_time = models.CharField(max_length=30)
+    acc_amount = models.IntegerField(default=0)
+    acc_feed_count = models.IntegerField(default=0)
+    acc_feed_time = models.IntegerField(default=0)
     leak_info = models.CharField(max_length=30)
 
     # location = models.CharField(max_length=30, blank=True, null=True)
 
+    # TODO
+    # view 
+    # 1. 檢視關於裝置資訊
+    # 2. 資料庫更新關於裝置資訊
+    # 3. 修改關於裝置資訊?
+    # 4. 控制
+    # 5. 檢視控制設定
+    # 6. 修改控制設定
+
+    # 當需要控制時才用到的欄位
+    # 1.other model: use diff serializer 
+    # 2.same model: use diff serializer  
     ir_duty = models.PositiveIntegerField(default=1) # 1~65535
     ir_range = models.PositiveSmallIntegerField(default=30) # 30~600
     self_preserver = models.PositiveIntegerField(default=1) #1~65535
@@ -73,3 +85,13 @@ class TapModel(models.Model):
         db_table = 'device_rpi_tap_table'
         # verbose_name = 'device'
         # verbode_name_plural = 'devices'
+
+
+class WeekStatisticsModel(models.Model):
+    tap = models.ForeignKey(TapModel,related_name='week', on_delete=models.CASCADE)
+    time = models.DateTimeField()
+    amount = models.IntegerField()
+    feed_count = models.IntegerField()
+    feed_time = models.IntegerField()
+    class Meta:
+        db_table = 'statistics_week'

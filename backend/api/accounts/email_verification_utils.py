@@ -12,5 +12,6 @@ def send_email_verification_code(account, email):
     message = render_to_string('email_template.txt', {'account': account, 'verification_code': verification_code})
     from_email = 's11a02d@gmail.com'
     recipient_list = [email]
-    send_mail(subject, message, from_email, recipient_list) # slow 
+    # TODO: dead
+    # send_mail(subject, message, from_email, recipient_list) # slow 
     return verification_code

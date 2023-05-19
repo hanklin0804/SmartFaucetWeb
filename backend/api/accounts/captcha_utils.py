@@ -5,6 +5,10 @@ from .cache_utils import CacheManager
 from .random_utils import RandomGenerateString
 
 
+# from captcha.helpers import captcha_image_url, random_char_challenge, reverse
+# from captcha.urls import reverse
+
+
 class CaptchaManager():
     def generate_captcha() -> str:
         captcha_value = RandomGenerateString.generate_string(settings.CAPTCHA_LENGTH)

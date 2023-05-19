@@ -6,16 +6,32 @@ from api.accounts.models import AccountModel
 
 from .serializers import AccountSerializer
 from django.contrib.auth.models import Group
-
+from .simplejwt_utils import generate_simplejwt
 
 def login_work(request) -> dict:
+    # 1
     user = authenticate(account=request.data.get('account'), password=request.data.get('password'))
     if user:
-        login(request, user)
-        return True
-        # json_data = {'status': 'success'}
+        # login(request, user)
+        json_data = generate_simplejwt(user)
+        json_data['status'] = 'success'
+        json_data_user = {'account': user.account}
+        if user.groups.filter(name='Managers').exists():
+            json_data_user['group'] = 'manager'
+        else:
+            json_data_user['group'] = 'engineer'
+        json_data['user'] = json_data_user
+        
+        return json_data
     else:
         return False
+    # # 2
+    # if user:
+    #     login(request, user)
+    #     # return True
+    #     json_data = {'status': 'success'}
+    # else:
+    #     # return False
     #     # error
     #     if AccountModel.objects.filter(account=request.data.get('account')).exists():
     #         # password error
@@ -24,6 +40,7 @@ def login_work(request) -> dict:
     #         # other error
     #         json_data = {'status': 'error'} #, 'message': 'empty or not exist'}
     # return json_data # user
+    
 
 
 def verify_user(account, verification_code):
@@ -71,8 +88,8 @@ class WorkManager:
         else:
             stored_data['count']  = 1
             
-        if type == 'login' and login_work(data):
-            json_response = {'status': 'success'}
+        if type == 'login' and (json_response:=login_work(data)):
+    
             return json_response
 
         if type == 'verify_signup' and (user_data:=verify_user(account, data)) and signup_work(user_data):

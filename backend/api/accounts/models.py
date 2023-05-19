@@ -16,6 +16,7 @@ class AccountModel(AbstractBaseUser, PermissionsMixin):
     information = models.TextField(blank=True, null=True)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+    approver = models.IntegerField(default=0)
 
     USERNAME_FIELD = 'account'
     REQUIRED_FIELDS = ['email', 'name', 'phone'] #, 'company'
