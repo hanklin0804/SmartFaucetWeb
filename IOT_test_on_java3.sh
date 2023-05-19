@@ -15,8 +15,8 @@ source ~/.bashrc
 echo "Java path added to PATH variable."
 
 # 建立專案目錄
-mkdir mqtt_client_project2
-cd mqtt_client_project2
+mkdir mqtt_client_project
+cd mqtt_client_project
 
 # 建立存放源碼檔案和類檔案的目錄
 mkdir src  # 存放 .java 檔
