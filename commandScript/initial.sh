@@ -57,7 +57,7 @@ source ~/.bashrc
 # pyenv install 3.9.6
 # pyenv global 3.9.6  # 設定全域版本
 # pyenv local 3.9.6 # 設定當前目錄版本
-# pipenv --python `pyenv which python` # 以當前版本作為pipenv的版本
+# pipenv --python `pyenv which python` # 以當前目錄版本作為pipenv的版本
 
 
 
