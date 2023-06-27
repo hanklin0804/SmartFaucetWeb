@@ -54,6 +54,11 @@ echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> ~/.bashrc
 echo 'eval "$(pyenv init -)"' >> ~/.bashrc
 echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bashrc
 source ~/.bashrc
+# pyenv install 3.9.6
+# pyenv global 3.9.6  # 設定全域版本
+# pyenv local 3.9.6 # 設定當前目錄版本
+# pipenv --python `pyenv which python` # 以當前版本作為pipenv的版本
+
 
 
 # 安装Pip和Pipenv
