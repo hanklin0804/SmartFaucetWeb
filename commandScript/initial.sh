@@ -34,6 +34,8 @@ docker --version
 
 # 将当前用户添加到docker用户组
 sudo usermod -aG docker $USER
+# 重启系统以使用户组更改生效
+sudo reboot
 
 
 # 安装Docker Compose
@@ -47,11 +49,10 @@ docker-compose --version
 sudo apt update
 sudo apt install python3-pip -y
 pip3 --version
+# python3 -m pip install testresources
 python3 -m pip install pipenv
 
 # 更新bashrc以添加pipenv到PATH
 echo 'export PATH="$PATH:/home/$USER/.local/bin"' >> ~/.bashrc
 source ~/.bashrc
 
-# 重启系统以使用户组更改生效
-sudo reboot
