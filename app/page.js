@@ -31,7 +31,7 @@ export default function LoginPage() {
                             lg: 55,
                             md: 50,
                             sm: 40,
-                            xs: 35
+                            xs: 25
                         },
                         ml: {
                             lg: 6,
@@ -49,10 +49,10 @@ export default function LoginPage() {
                 <Typography
                     sx={{
                         fontSize: {
-                            lg: 35,
-                            md: 30,
+                            lg: 30,
+                            md: 25,
                             sm: 20,
-                            xs: 15
+                            xs: 10
                         },
                         ml: {
                             lg: 7,
