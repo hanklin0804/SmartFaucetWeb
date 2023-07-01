@@ -14,7 +14,7 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 
-const pages = ['Products', 'Pricing', 'Blog'];
+const pages = ['Logout',];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function ResponsiveAppBar() {
@@ -37,13 +37,13 @@ function ResponsiveAppBar() {
     };
 
     return (
-        <AppBar position="static" sx={{ backgroundColor: '#c5cae9' }}>
+        <AppBar position="static" sx={{ backgroundColor: '#03a9f4' }}>
             <Container maxWidth="xl" sx={{ color: '#000000' }}>
                 <Toolbar disableGutters  >
-                    <Box sx={{ flexGrow: 1 }}>
+                    <Box sx={{ flexGrow: 2 }}>
                         <Tooltip title="Open settings">
-                            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                <Avatar alt="Dino" src="/static/images/avatar/2.jpg" />
+                            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }} color='#03a9f4'>
+                                <Avatar alt="Dino" src="/static/images/avatar/2.jpg" color='#03a9f4' />
                             </IconButton>
                         </Tooltip>
                         <Menu
@@ -77,16 +77,29 @@ function ResponsiveAppBar() {
                             mr: 20,
                             display: { xs: 'none', md: 'flex' },
                             fontFamily: 'Prompt',
-                            fontWeight: 700,
+                            fontWeight: 500,
+                            fontSize:
+                            {
+                                lg: 20,
+                                md: 14,
+                                sm: 10,
+                                xs: 1,
+                            },
                             letterSpacing: '.3rem',
                             color: 'inherit',
                             textDecoration: 'none',
-                            ml: 1
+                            ml:
+                            {
+                                lg: -30,
+                                md: 0,
+                                sm: 0,
+                                xs: -1,
+                            }
                         }}
                     >
                         Hi,Dino(engineer)
                     </Typography>
-                    <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 0 }} />
+                    <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, ml: { lg: 5, md: -5, sm: 0 } }} />
                     <Typography
                         variant="h6"
                         noWrap
@@ -105,43 +118,9 @@ function ResponsiveAppBar() {
                         T.A.P
                     </Typography>
 
-                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-                        {/* <IconButton
-                            size="large"
-                            aria-label="account of current user"
-                            aria-controls="menu-appbar"
-                            aria-haspopup="true"
-                            onClick={handleOpenNavMenu}
-                            color="inherit"
-                            sx={{}}
-                        >
-                            <MenuIcon sx={{}} />
-                        </IconButton> */}
-                        <Menu
-                            id="menu-appbar"
-                            anchorEl={anchorElNav}
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'left',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'left',
-                            }}
-                            open={Boolean(anchorElNav)}
-                            onClose={handleCloseNavMenu}
-                            sx={{
-                                display: { xs: 'block', md: 'none' },
-                            }}
-                        >
-                            {pages.map((page) => (
-                                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                                    <Typography textAlign="center">{page}</Typography>
-                                </MenuItem>
-                            ))}
-                        </Menu>
-                    </Box>
+                    {/* <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+
+                    </Box> */}
                     <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, ml: -20 }} />
                     <Typography
                         variant="h5"
@@ -161,12 +140,13 @@ function ResponsiveAppBar() {
                     >
                         T.A.P
                     </Typography>
-                    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+                    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, }}>
                         {pages.map((page) => (
                             <Button
                                 key={page}
                                 onClick={handleCloseNavMenu}
-                                sx={{ my: 2, color: 'black', display: 'block' }}
+                                variant="outlined"
+                                sx={{ my: 2, color: 'black', display: 'block', fontFamily: "Prompt", borderRadius: 3, }}
                             >
                                 {page}
                             </Button>
