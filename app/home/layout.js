@@ -7,8 +7,9 @@ export default function HomePageLayout({ children }) {
     return (
         // <html lang="en">
         <section>
-            {children}
             <AppBar></AppBar>
+            {children}
+
         </section>
 
     )
