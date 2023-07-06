@@ -1,0 +1,265 @@
+Received message: Soc IP: 140.118.122.123
+Device Name: Faucet1
+Device Model: Model1
+Device SN: SN1
+Device ID: ID1
+Firmware Version: Version1
+Accumulated Water Amount: 941.4637388883467
+Accumulated Feed Count: 48
+Accumulated Feed Time: 45.522463816404624
+Leak Information: Leak Detected
+
+Message sent: Soc IP: 140.118.122.123
+Device Name: Faucet1
+Device Model: Model1
+Device SN: SN1
+Device ID: ID1
+Firmware Version: Version1
+Accumulated Water Amount: 941.4637388883467
+Accumulated Feed Count: 48
+Accumulated Feed Time: 45.522463816404624
+Leak Information: Leak Detected
+
+Received message: Soc IP: 140.118.122.123
+Device Name: Faucet2
+Device Model: Model2
+Device SN: SN2
+Device ID: ID2
+Firmware Version: Version2
+Accumulated Water Amount: 58.85510313502817
+Accumulated Feed Count: 60
+Accumulated Feed Time: 67.92548476116052
+Leak Information: No Leak
+
+Message sent: Soc IP: 140.118.122.123
+Device Name: Faucet2
+Device Model: Model2
+Device SN: SN2
+Device ID: ID2
+Firmware Version: Version2
+Accumulated Water Amount: 58.85510313502817
+Accumulated Feed Count: 60
+Accumulated Feed Time: 67.92548476116052
+Leak Information: No Leak
+
+Received message: Soc IP: 140.118.122.123
+Device Name: Faucet3
+Device Model: Model3
+Device SN: SN3
+Device ID: ID3
+Firmware Version: Version3
+Accumulated Water Amount: 180.0350550652404
+Accumulated Feed Count: 98
+Accumulated Feed Time: 56.99715978419185
+Leak Information: No Leak
+
+Message sent: Soc IP: 140.118.122.123
+Device Name: Faucet3
+Device Model: Model3
+Device SN: SN3
+Device ID: ID3
+Firmware Version: Version3
+Accumulated Water Amount: 180.0350550652404
+Accumulated Feed Count: 98
+Accumulated Feed Time: 56.99715978419185
+Leak Information: No Leak
+
+Received message: Soc IP: 140.118.122.123
+Device Name: Faucet1
+Device Model: Model1
+Device SN: SN1
+Device ID: ID1
+Firmware Version: Version1
+Accumulated Water Amount: 203.13688565769561
+Accumulated Feed Count: 94
+Accumulated Feed Time: 90.3078336257182
+Leak Information: Leak Detected
+
+Message sent: Soc IP: 140.118.122.123
+Device Name: Faucet1
+Device Model: Model1
+Device SN: SN1
+Device ID: ID1
+Firmware Version: Version1
+Accumulated Water Amount: 203.13688565769561
+Accumulated Feed Count: 94
+Accumulated Feed Time: 90.3078336257182
+Leak Information: Leak Detected
+
+Received message: Soc IP: 140.118.122.123
+Device Name: Faucet2
+Device Model: Model2
+Device SN: SN2
+Device ID: ID2
+Firmware Version: Version2
+Accumulated Water Amount: 174.78600324307837
+Accumulated Feed Count: 7
+Accumulated Feed Time: 84.38400190354143
+Leak Information: No Leak
+
+Message sent: Soc IP: 140.118.122.123
+Device Name: Faucet2
+Device Model: Model2
+Device SN: SN2
+Device ID: ID2
+Firmware Version: Version2
+Accumulated Water Amount: 174.78600324307837
+Accumulated Feed Count: 7
+Accumulated Feed Time: 84.38400190354143
+Leak Information: No Leak
+
+Message sent: Soc IP: 140.118.122.123
+Device Name: Faucet3
+Device Model: Model3
+Device SN: SN3
+Device ID: ID3
+Firmware Version: Version3
+Accumulated Water Amount: 918.4844017221262
+Accumulated Feed Count: 73
+Accumulated Feed Time: 76.51012947040138
+Leak Information: Leak Detected
+
+Received message: Soc IP: 140.118.122.123
+Device Name: Faucet3
+Device Model: Model3
+Device SN: SN3
+Device ID: ID3
+Firmware Version: Version3
+Accumulated Water Amount: 918.4844017221262
+Accumulated Feed Count: 73
+Accumulated Feed Time: 76.51012947040138
+Leak Information: Leak Detected
+
+Received message: Soc IP: 140.118.122.123
+Device Name: Faucet1
+Device Model: Model1
+Device SN: SN1
+Device ID: ID1
+Firmware Version: Version1
+Accumulated Water Amount: 140.0576227294086
+Accumulated Feed Count: 54
+Accumulated Feed Time: 50.23606738600456
+Leak Information: Leak Detected
+
+Message sent: Soc IP: 140.118.122.123
+Device Name: Faucet1
+Device Model: Model1
+Device SN: SN1
+Device ID: ID1
+Firmware Version: Version1
+Accumulated Water Amount: 140.0576227294086
+Accumulated Feed Count: 54
+Accumulated Feed Time: 50.23606738600456
+Leak Information: Leak Detected
+
+Message sent: Soc IP: 140.118.122.123
+Device Name: Faucet2
+Device Model: Model2
+Device SN: SN2
+Device ID: ID2
+Firmware Version: Version2
+Accumulated Water Amount: 375.8539544821541
+Accumulated Feed Count: 83
+Accumulated Feed Time: 71.56889907057369
+Leak Information: Leak Detected
+
+Received message: Soc IP: 140.118.122.123
+Device Name: Faucet2
+Device Model: Model2
+Device SN: SN2
+Device ID: ID2
+Firmware Version: Version2
+Accumulated Water Amount: 375.8539544821541
+Accumulated Feed Count: 83
+Accumulated Feed Time: 71.56889907057369
+Leak Information: Leak Detected
+
+Message sent: Soc IP: 140.118.122.123
+Device Name: Faucet3
+Device Model: Model3
+Device SN: SN3
+Device ID: ID3
+Firmware Version: Version3
+Accumulated Water Amount: 432.2988194982953
+Accumulated Feed Count: 86
+Accumulated Feed Time: 27.126812019239487
+Leak Information: Leak Detected
+
+Received message: Soc IP: 140.118.122.123
+Device Name: Faucet3
+Device Model: Model3
+Device SN: SN3
+Device ID: ID3
+Firmware Version: Version3
+Accumulated Water Amount: 432.2988194982953
+Accumulated Feed Count: 86
+Accumulated Feed Time: 27.126812019239487
+Leak Information: Leak Detected
+
+Message sent: Soc IP: 140.118.122.123
+Device Name: Faucet1
+Device Model: Model1
+Device SN: SN1
+Device ID: ID1
+Firmware Version: Version1
+Accumulated Water Amount: 906.3165451936837
+Accumulated Feed Count: 67
+Accumulated Feed Time: 19.987599780127553
+Leak Information: No Leak
+
+Received message: Soc IP: 140.118.122.123
+Device Name: Faucet1
+Device Model: Model1
+Device SN: SN1
+Device ID: ID1
+Firmware Version: Version1
+Accumulated Water Amount: 906.3165451936837
+Accumulated Feed Count: 67
+Accumulated Feed Time: 19.987599780127553
+Leak Information: No Leak
+
+Message sent: Soc IP: 140.118.122.123
+Device Name: Faucet2
+Device Model: Model2
+Device SN: SN2
+Device ID: ID2
+Firmware Version: Version2
+Accumulated Water Amount: 992.1265596984296
+Accumulated Feed Count: 84
+Accumulated Feed Time: 15.8406588429857
+Leak Information: Leak Detected
+
+Received message: Soc IP: 140.118.122.123
+Device Name: Faucet2
+Device Model: Model2
+Device SN: SN2
+Device ID: ID2
+Firmware Version: Version2
+Accumulated Water Amount: 992.1265596984296
+Accumulated Feed Count: 84
+Accumulated Feed Time: 15.8406588429857
+Leak Information: Leak Detected
+
+Received message: Soc IP: 140.118.122.123
+Device Name: Faucet3
+Device Model: Model3
+Device SN: SN3
+Device ID: ID3
+Firmware Version: Version3
+Accumulated Water Amount: 293.9978726924044
+Accumulated Feed Count: 48
+Accumulated Feed Time: 93.67529663750432
+Leak Information: Leak Detected
+
+Message sent: Soc IP: 140.118.122.123
+Device Name: Faucet3
+Device Model: Model3
+Device SN: SN3
+Device ID: ID3
+Firmware Version: Version3
+Accumulated Water Amount: 293.9978726924044
+Accumulated Feed Count: 48
+Accumulated Feed Time: 93.67529663750432
+Leak Information: Leak Detected
+
+Disconnected from the MQTT broker
