@@ -37,13 +37,13 @@ function ResponsiveAppBar() {
     };
 
     return (
-        <AppBar position="static" sx={{ backgroundColor: '#03a9f4' }}>
+        <AppBar position="static" sx={{ backgroundColor: '#bbdefb' }}>
             <Container maxWidth="xl" sx={{ color: '#000000' }}>
                 <Toolbar disableGutters  >
                     <Box sx={{ flexGrow: 2 }}>
                         <Tooltip title="Open settings">
-                            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }} color='#03a9f4'>
-                                <Avatar alt="Dino" src="/static/images/avatar/2.jpg" color='#03a9f4' />
+                            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }} color='primary'>
+                                <Avatar alt="Dino" src="/static/images/avatar/2.jpg" color='primary' />
                             </IconButton>
                         </Tooltip>
                         <Menu

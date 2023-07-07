@@ -4,8 +4,11 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { CardActionArea } from '@mui/material';
-import Image from 'next/image'
-export default function ActionAreaCard({ title, content, image }) {
+
+export default function ActionAreaCard({ title, content, image, img_mt }) {
+    // const [img_mt1, setimg_mt1] = React.useState(-1);
+    const total_mt = -1 + img_mt;
+
     return (
         <Card sx={{
             maxWidth: 345,
@@ -18,8 +21,8 @@ export default function ActionAreaCard({ title, content, image }) {
             },
             ml:
             {
-                lg: 3,
-                md: 5,
+                lg: 6,
+                md: 20,
                 sm: 5,
                 xs: 8,
             }
@@ -27,58 +30,84 @@ export default function ActionAreaCard({ title, content, image }) {
             <CardActionArea sx={{
                 width:
                 {
-                    lg: 300,
-                    md: 200,
-                    sm: 175,
+                    lg: 250,
+                    md: 300,
+                    sm: 300,
                     xs: 200,
+                },
+                height:
+                {
+                    lg: 450,
+                    md: 400,
+                    sm: 300,
+                    xs: 300,
                 }
             }}>
                 <CardMedia
                     component="img"
-                    height="140"
                     image={image}
                     sx={{
                         width:
                         {
-                            lg: 300,
+                            lg: 200,
                             md: 200,
                             sm: 150,
-                            xs: 200,
+                            xs: 100,
                         },
                         height:
                         {
-                            lg: 300,
+                            lg: 200,
                             md: 200,
                             sm: 150,
-                            xs: 200,
+                            xs: 100,
                         },
+                        mt: total_mt,
+                        ml:
+                        {
+                            lg: 3,
+                            md: 5,
+                            sm: 9,
+                            xs: 6,
+                        },
+                        mb: 8
                     }}
                 />
                 <CardContent>
-                    <Typography gutterBottom component="div"
+                    <Typography gutterBottom component="div" align='center'
                         sx={{
-                            mt: -4,
+                            mt: -8,
                             fontSize:
                             {
-                                lg: 30,
+                                lg: 20,
                                 md: 20,
                                 sm: 15,
-                                xs: 20,
+                                xs: 15,
                             },
-                            fontWeight: 700
-
+                            fontWeight: 700,
+                            fontFamily: 'Prompt'
                         }}>
                         {title}
                     </Typography>
                     <div
                         style={{
                             width: '100%',
-                            height: '1px',
+                            height: '2px',
                             background: 'black',
                             margin: '8px 0',
                         }}
                     ></div>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.secondary"
+                        sx={{
+                            fontSize:
+                            {
+                                lg: 15,
+                                md: 15,
+                                sm: 10,
+                                xs: 10,
+                            },
+                            fontWeight: 700,
+                            fontFamily: 'Prompt'
+                        }}>
                         {content}
                     </Typography>
                 </CardContent>
