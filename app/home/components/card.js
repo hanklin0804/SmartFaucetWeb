@@ -4,13 +4,14 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { CardActionArea } from '@mui/material';
-
-export default function ActionAreaCard({ title, content, image, img_mt }) {
-    // const [img_mt1, setimg_mt1] = React.useState(-1);
+import { useRouter } from 'next/navigation'
+export default function ActionAreaCard({ title, content, image, img_mt, href }) {
     const total_mt = -1 + img_mt;
+    const router = useRouter();
 
     return (
-        <Card sx={{
+
+        <Card type="button" onClick={() => router.push(href)} sx={{
             maxWidth: 345,
             mt:
             {
@@ -23,10 +24,11 @@ export default function ActionAreaCard({ title, content, image, img_mt }) {
             {
                 lg: 6,
                 md: 20,
-                sm: 5,
+                sm: 6,
                 xs: 8,
             }
         }}>
+
             <CardActionArea sx={{
                 width:
                 {
@@ -72,6 +74,7 @@ export default function ActionAreaCard({ title, content, image, img_mt }) {
                         mb: 8
                     }}
                 />
+
                 <CardContent>
                     <Typography gutterBottom component="div" align='center'
                         sx={{
@@ -112,6 +115,6 @@ export default function ActionAreaCard({ title, content, image, img_mt }) {
                     </Typography>
                 </CardContent>
             </CardActionArea>
-        </Card>
+        </Card >
     );
 }
