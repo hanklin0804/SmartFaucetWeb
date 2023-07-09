@@ -1,12 +1,14 @@
 'use client'
-import AppBar from '../components/appbar';
-import * as React from 'react';
 
+import * as React from 'react';
+import TiTle from '../components/title';
+import Table from '../components/selecttable';
 export default function HomePageLayout({ children }) {
 
     return (
         <section>
-            {/* <AppBar></AppBar> */}
+            <TiTle content="Connected SOC Device"></TiTle>
+            <Table></Table>
             {children}
         </section>
 

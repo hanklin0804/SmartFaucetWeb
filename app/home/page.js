@@ -16,7 +16,6 @@ export default function HomePage() {
                     <Card title="Event Statistics" content="您可以透過事件統計查看所有裝置過去的維修、設定紀錄。" image="/home/event_statistics.png" img_mt={-5} href="/event"></Card>
                 </Box>
             </Container>
-
         </>
     );
 }
