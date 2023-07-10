@@ -204,32 +204,41 @@ public class FaucetDataGenerator {
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private final Gson gson = new Gson();
     private final Random random = new Random();
+    private final FaucetData[] faucets = new FaucetData[5]; // Assuming 5 faucets
     
+    public FaucetDataGenerator() {
+        // Initialize the faucet data
+        for (int i = 0; i < faucets.length; i++) {
+            String faucetID = "Faucet" + i;
+            String groupID = i < 3 ? "Group1" : "Group2"; // First 3 faucets in Group1, remaining in Group2
+            faucets[i] = new FaucetData(faucetID, groupID, 0, 0, 0, false, true, System.currentTimeMillis());
+        }
+    }
+
     public void startGenerating() {
         executorService.scheduleAtFixedRate(() -> {
-            FaucetData faucetData = generateData();
-            String json = convertToJson(faucetData);
-            try {
-                Sender.sendData(json); // This assumes Sender.java has a static method 'sendData(String data)'
-            } catch (Exception e) {
-                e.printStackTrace();
+            for (FaucetData faucet : faucets) {
+                updateAndSendData(faucet);
             }
         }, 0, 5, TimeUnit.SECONDS);
     }
 
-    private FaucetData generateData() {
-        // Generate random data for FaucetData. You can adjust these as necessary.
-        String faucetID = "Faucet" + random.nextInt(1000);
-        String groupID = "Group" + random.nextInt(100);
-        long totalUsageCount = random.nextLong();
-        double totalUsageWater = random.nextDouble() * 1000;
-        double totalUsageTime = random.nextDouble() * 100;
-        boolean statusLeak = random.nextBoolean();
-        boolean statusSensor = random.nextBoolean();
-        long timestamp = System.currentTimeMillis();
+    private void updateAndSendData(FaucetData faucet) {
+        // Update the faucet data
+        faucet.TotalUsageCount++;
+        faucet.TotalUsageWater += random.nextDouble() * 10;  // Increase by up to 10 units
+        faucet.TotalUsageTime += random.nextDouble();  // Increase by up to 1 unit
+        faucet.StatusLeak = random.nextBoolean();
+        faucet.StatusSensor = random.nextBoolean();
+        faucet.Timestamp = System.currentTimeMillis();
 
-        return new FaucetData(faucetID, groupID, totalUsageCount, totalUsageWater, totalUsageTime,
-            statusLeak, statusSensor, timestamp);
+        // Convert the updated faucet data to JSON and send it
+        String json = convertToJson(faucet);
+        try {
+            Sender.sendData(json);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private String convertToJson(FaucetData faucetData) {
