@@ -7,8 +7,7 @@ export default function HomePageLayout({ children }) {
 
     return (
         <section>
-            <TiTle content="Connected SOC Device"></TiTle>
-            <Table></Table>
+            <TiTle content="Water Saving DashBoard" href="/home"></TiTle>
             {children}
         </section>
 

@@ -1,8 +1,8 @@
 'use client'
 import * as React from 'react';
-import TiTle from '../components/title';
 
-export default function ScanPage() {
+
+export default function SaveWaterPage() {
 
     return (
         // <TiTle content="Connected SOC Device"></TiTle>

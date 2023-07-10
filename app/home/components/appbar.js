@@ -42,7 +42,7 @@ function ResponsiveAppBar() {
                     <Box sx={{ flexGrow: 2 }}>
                         <Tooltip title="Open settings">
                             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }} color='primary'>
-                                <Avatar alt="Dino" src="/static/images/avatar/2.jpg" color='primary' />
+                                <Avatar alt="Dino" color='primary' />
                             </IconButton>
                         </Tooltip>
                         <Menu
