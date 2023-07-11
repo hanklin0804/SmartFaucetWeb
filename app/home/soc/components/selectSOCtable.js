@@ -9,30 +9,25 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { useRouter } from 'next/navigation'
 const columns = [
-    { id: 'name', label: 'Group Name', minWidth: 100 },
-    { id: 'id', label: 'Group ID', minWidth: 100 },
-    { id: 'faucetCount', label: 'The Number Of Faucets', align: 'right', minWidth: 170 },
+    { id: 'name', label: 'Group Name', minWidth: 100, headerAlign: 'center', align: 'center' },
+    { id: 'id', label: 'Group ID', minWidth: 100, headerAlign: 'center', align: 'center' },
+    { id: 'faucetCount', label: 'The Number Of Faucets', minWidth: 170, headerAlign: 'center', align: 'center' },
     {
         id: 'totalWaterConsumption',
         label: 'Total Usage Water(L)',
         minWidth: 170,
-        align: 'right',
+        headerAlign: 'center',
+        align: 'center',
         format: (value) => value.toLocaleString('en-US'),
     },
     {
         id: 'leakingFaucetCount',
         label: 'The Number Of Leaking Faucets',
         minWidth: 200,
-        align: 'right',
+        headerAlign: 'center',
+        align: 'center',
         format: (value) => value.toLocaleString('en-US'),
     },
-    // {
-    //     id: 'density',
-    //     label: 'Density',
-    //     minWidth: 170,
-    //     align: 'right',
-    //     format: (value) => value.toFixed(2),
-    // },
 ];
 
 function createData(name, id, faucetCount, totalWaterConsumption, leakingFaucetCount) {
@@ -44,7 +39,7 @@ const rows = [
     createData('彰一興', 'yoXgp', 2, 1403500365, 1),
 ];
 
-export default function ColumnGroupingTable({ href }) {
+export default function ColumnGroupingTable() {
     const router = useRouter();
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -92,7 +87,7 @@ export default function ColumnGroupingTable({ href }) {
                                         {columns.map((column) => {
                                             const value = row[column.id];
                                             return (
-                                                <TableCell key={column.id} align={column.align} type="button" onClick={() => router.push(href)}>
+                                                <TableCell key={column.id} align={column.align} type="button" onClick={() => router.push(`/home/soc/${row.id}`)}>
                                                     {column.format && typeof value === 'number'
                                                         ? column.format(value)
                                                         : value}
