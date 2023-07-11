@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Avatar } from '@mui/material';
-
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 function ImageCell(params) {
     const { value } = params;
 
@@ -42,6 +43,13 @@ const rows = [
 ];
 
 export default function DataTable() {
+    const [selectedRow, setSelectedRow] = React.useState(null);
+    const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
+
+    const handleRowSelection = (params) => {
+        const selectedRowId = params.selectionModel[0];
+        setSelectedRow(selectedRowId);
+    };
     return (
         <div style={{ height: 400, width: '100%' }}>
             <DataGrid
@@ -55,7 +63,21 @@ export default function DataTable() {
                 pageSizeOptions={[5, 10]}
                 checkboxSelection
                 rowHeight={90}
+                onRowSelectionModelChange={(newRowSelectionModel) => {
+                    setRowSelectionModel(newRowSelectionModel);
+                }}
+                rowSelectionModel={rowSelectionModel}
             />
+            {rowSelectionModel.length !== 0 && (
+                <Box sx={{ '& button': { m: 1 } }}>
+                    <div>
+                        <Button variant="outlined" size="medium">
+                            Continue
+                        </Button>
+                    </div>
+                </Box>
+            )}
         </div>
+
     );
 }
